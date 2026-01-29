@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shiftwave Session Survey</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a0a;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 20px;
+            color: #ffffff;
+        }
+        
+        .container {
+            max-width: 460px;
+            width: 100%;
+        }
+        
+        /* Logo */
+        .logo {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+        
+        .logo svg {
+            height: 80px;
+            width: auto;
+        }
+        
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        
+        .header h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+        
+        .header p {
+            font-size: 0.9rem;
+            color: #888888;
+            line-height: 1.5;
+        }
+        
+        /* Form inputs */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #888888;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #333333;
+            background: #151515;
+            color: #ffffff;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.15s;
+            text-transform: uppercase;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #555555;
+        }
+        
+        .form-group input::placeholder {
+            color: #555555;
+            text-transform: none;
+        }
+        
+        /* Timing selector */
+        .timing-selector {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+        
+        .timing-btn {
+            flex: 1;
+            padding: 14px 20px;
+            border: 1px solid #333333;
+            background: #151515;
+            color: #888888;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            transition: all 0.15s ease;
+        }
+        
+        .timing-btn:hover {
+            border-color: #555555;
+            color: #cccccc;
+        }
+        
+        .timing-btn.active {
+            background: #ffffff;
+            border-color: #ffffff;
+            color: #0a0a0a;
+        }
+        
+        /* Instruction */
+        .instruction {
+            text-align: center;
+            margin-bottom: 16px;
+            font-size: 0.85rem;
+            color: #666666;
+        }
+        
+        /* Grid container */
+        .grid-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto 24px;
+        }
+        
+        .emojigrid-wrapper {
+            position: relative;
+            width: 100%;
+            padding-bottom: 100%;
+        }
+        
+        /* The clickable grid */
+        .emojigrid {
+            position: absolute;
+            top: 32px;
+            left: 32px;
+            right: 32px;
+            bottom: 32px;
+            background: #0f0f0f;
+            border: 1px solid #444444;
+            cursor: crosshair;
+            touch-action: none;
+        }
+        
+        /* Grid lines - dashed, consistent */
+        .grid-line-h, .grid-line-v {
+            position: absolute;
+            background: transparent;
+        }
+        
+        .grid-line-h {
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 0;
+            border-top: 1px dashed #444444;
+        }
+        
+        .grid-line-v {
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 0;
+            border-left: 1px dashed #444444;
+        }
+        
+        /* Click marker */
+        .marker {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: #ffffff;
+            border: 2px solid #0a0a0a;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            display: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+        
+        .marker.visible {
+            display: block;
+        }
+        
+        /* Face labels - evenly spaced around perimeter */
+        .face-label {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+        }
+        
+        .face-label svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* 
+         * POSITIONING: Faces are evenly spaced on perimeter
+         * Grid area: top/left/right/bottom = 32px inset
+         * Face positions: 0%, 25%, 50%, 75%, 100% along each edge
+         */
+        
+        /* Bottom row (y = 100%) - positions at 0%, 25%, 50%, 75%, 100% */
+        .face-b1 { left: 16px; bottom: 16px; transform: translate(-50%, 50%); }
+        .face-b2 { left: calc(32px + (100% - 64px) * 0.25); bottom: 16px; transform: translate(-50%, 50%); }
+        .face-b3 { left: 50%; bottom: 16px; transform: translate(-50%, 50%); }
+        .face-b4 { left: calc(32px + (100% - 64px) * 0.75); bottom: 16px; transform: translate(-50%, 50%); }
+        .face-b5 { right: 16px; bottom: 16px; transform: translate(50%, 50%); }
+        
+        /* Top row (y = 0%) */
+        .face-t1 { left: 16px; top: 16px; transform: translate(-50%, -50%); }
+        .face-t2 { left: calc(32px + (100% - 64px) * 0.25); top: 16px; transform: translate(-50%, -50%); }
+        .face-t3 { left: 50%; top: 16px; transform: translate(-50%, -50%); }
+        .face-t4 { left: calc(32px + (100% - 64px) * 0.75); top: 16px; transform: translate(-50%, -50%); }
+        .face-t5 { right: 16px; top: 16px; transform: translate(50%, -50%); }
+        
+        /* Left column (x = 0%) - positions at 25%, 50%, 75% (corners handled by top/bottom) */
+        .face-l2 { left: 16px; top: calc(32px + (100% - 64px) * 0.75); transform: translate(-50%, -50%); }
+        .face-l3 { left: 16px; top: 50%; transform: translate(-50%, -50%); }
+        .face-l4 { left: 16px; top: calc(32px + (100% - 64px) * 0.25); transform: translate(-50%, -50%); }
+        
+        /* Right column (x = 100%) */
+        .face-r2 { right: 16px; top: calc(32px + (100% - 64px) * 0.75); transform: translate(50%, -50%); }
+        .face-r3 { right: 16px; top: 50%; transform: translate(50%, -50%); }
+        .face-r4 { right: 16px; top: calc(32px + (100% - 64px) * 0.25); transform: translate(50%, -50%); }
+        
+        /* Center face - with background to sit above grid lines */
+        .face-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 28px;
+            height: 28px;
+            z-index: 5;
+            background: #0f0f0f;
+            border-radius: 50%;
+            padding: 2px;
+        }
+        
+        .face-center svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Results display */
+        .results {
+            background: #151515;
+            border: 1px solid #333333;
+            border-radius: 6px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .results.visible {
+            display: block;
+        }
+        
+        .results-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .results-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .results-label {
+            color: #666666;
+        }
+        
+        .results-value {
+            font-weight: 600;
+            color: #ffffff;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        /* Submit button */
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: #333333;
+            color: #666666;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            cursor: not-allowed;
+            transition: all 0.15s ease;
+        }
+        
+        .submit-btn.ready {
+            background: #ffffff;
+            color: #0a0a0a;
+            cursor: pointer;
+        }
+        
+        .submit-btn.ready:hover {
+            background: #e0e0e0;
+        }
+        
+        .submit-btn.success {
+            background: #333333;
+            color: #888888;
+        }
+        
+        /* Status message */
+        .status {
+            text-align: center;
+            margin-top: 12px;
+            font-size: 0.85rem;
+            color: #666666;
+        }
+        
+        .status.error {
+            color: #cc6666;
+        }
+        
+        .status.success {
+            color: #888888;
+        }
+        
+        /* Footer */
+        .footer-note {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #222222;
+            font-size: 0.7rem;
+            color: #444444;
+            text-align: center;
+            line-height: 1.5;
+        }
+        
+        .footer-note a {
+            color: #666666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Shiftwave Logo -->
+        <div class="logo">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 688">
+                <defs><style>.sw-stroke{fill:none;stroke:#fff;stroke-miterlimit:10;stroke-width:8px;}.sw-fill{fill:#fff;}</style></defs>
+                <g id="SHIFTWAVE-text">
+                    <path class="sw-fill" d="M164.4164,576.6915c-27.538-3.741-45.5885-7.5763-45.5885-26.0745,0-5.3407,2.0083-10.3028,5.6576-13.9806l1.7672-1.5705c3.5038-2.7458,7.6905-4.1967,12.1125-4.1967h48.0884c4.4299,0,8.6585,1.4915,11.949,4.2332l1.9778,1.5825c3.6194,3.6739,5.6111,8.6153,5.6111,13.9321,0,3.0055,2.5398,5.4503,5.6609,5.4503,2.955,0,5.451-2.496,5.451-5.4503v-.2106c0-8.0559-3.2759-15.9517-8.9873-21.6625l-.7115-.7082c-5.8024-5.3387-13.2425-8.2785-20.951-8.2785h-48.0884c-7.7085,0-15.1485,2.9398-21.032,8.3556l-.6683.669c-5.8549,6.0881-8.9495,13.6385-8.9495,21.8352,0,27.1109,27.3527,32.8489,53.0491,36.0696,3.5045.8404,7.5969,1.3812,11.9258,1.9532,19.4628,2.5724,34.351,5.9214,34.351,23.2942,0,10.8887-8.7648,19.7479-19.5379,19.7479h-50.6083c-5.1687,0-10.0231-1.9804-13.6916-5.5812l-.5109-.6803-.1535-.1867c-3.3895-3.7662-5.1813-8.3655-5.1813-13.2997,0-3.0055-2.5398-5.4503-5.6616-5.4503-2.9544,0-5.4503,2.496-5.4503,5.4503l.0013,1.1354c.2272,7.2786,3.2135,14.4609,8.1981,19.7339l.5341.7128.2531.291c5.7108,5.7114,13.6066,8.9873,21.6625,8.9873h50.6083c16.9004,0,30.6499-13.8438,30.6499-30.8605,0-27.9426-28.5485-31.8205-53.7367-35.2425Z"/>
+                    <path class="sw-fill" d="M332.053,519.9665c-2.955,0-5.4517,2.4966-5.4517,5.4517v50.4025h-82.3331v-50.4025c0-3.0062-2.5398-5.4517-5.6616-5.4517-2.955,0-5.451,2.4966-5.451,5.4517v111.9247c0,2.955,2.496,5.4517,5.451,5.4517,3.1218,0,5.6616-2.4455,5.6616-5.4517v-50.4108h82.3331v50.4108c0,2.955,2.4966,5.4517,5.4517,5.4517s5.451-2.4966,5.451-5.4517v-111.9247c0-2.955-2.496-5.4517-5.451-5.4517Z"/>
+                    <path class="sw-fill" d="M362.0843,519.9665c-2.955,0-5.451,2.4966-5.451,5.4517v111.9247c0,2.955,2.496,5.4517,5.451,5.4517,3.1218,0,5.6616-2.4455,5.6616-5.4517v-111.9247c0-3.0062-2.5398-5.4517-5.6616-5.4517Z"/>
+                    <path class="sw-fill" d="M437.5254,531.0791h20.7889c3.0062,0,5.4517-2.5398,5.4517-5.6609,0-2.955-2.4966-5.4517-5.4517-5.4517h-20.7889c-28.2682,0-51.6261,23.0563-52.0686,51.3969l-.0007,65.9794c0,2.955,2.496,5.4517,5.451,5.4517,3.1218,0,5.6616-2.4455,5.6616-5.4517v-43.8171h61.7455c2.955,0,5.4517-2.496,5.4517-5.4503,0-3.1211-2.4455-5.6609-5.4517-5.6609h-61.7455v-10.3787c0-22.5833,18.3733-40.9566,40.9566-40.9566Z"/>
+                    <path class="sw-fill" d="M580.0581,519.9665h-96.806c-2.955,0-5.451,2.4966-5.451,5.4517,0,3.1211,2.4455,5.6609,5.451,5.6609h42.8474v106.2637c0,3.0062,2.5392,5.4517,5.6609,5.4517,2.955,0,5.451-2.4966,5.451-5.4517v-106.2637h42.8467c3.0062,0,5.4517-2.5398,5.4517-5.6609,0-2.955-2.4966-5.4517-5.4517-5.4517Z"/>
+                    <path class="sw-fill" d="M751.7418,520.2296l-.5315-.0525c-2.9258,0-5.2417,1.9107-5.635,4.6591l-14.6875,106.3906c-.1913,1.148-1.3327,1.5048-1.726,1.5048-.5448,0-1.0058-.3607-1.2317-.962l-38.8486-103.7352c-1.7326-4.6265-6.2343-7.8573-10.9472-7.8573-4.988,0-9.3674,3.0833-11.1585,7.8566l-38.8486,103.7359c-.2392.6404-.9181.962-1.2304.962-.7122,0-1.5147-.4637-1.7233-1.4981l-14.6928-106.4099c-.3906-2.7358-2.7066-4.6465-5.6337-4.6465l-.4464.0365c-2.5338.4212-4.3741,2.6102-4.3741,5.2045v.6092l14.9227,106.756c.5846,5.849,5.833,10.431,11.9477,10.431,4.8591,0,9.1561-3.0833,10.9485-7.8566l38.8021-103.6203c.2325-.5448.97-1.0789,1.4828-1.0789.279.0153,1.0311.4943,1.2357.964l38.8314,103.686c1.6237,4.6026,6.0297,7.6952,10.9645,7.6952,5.9951,0,11.3538-4.5787,11.9344-10.1141l14.9094-106.6749.0266-.7966c0-2.4707-1.8442-4.7016-4.2904-5.1886Z"/>
+                    <path class="sw-fill" d="M839.1533,533.3572c-1.6941-3.8752-4.3329-7.169-7.6294-9.5241l-.7109-.5069h-.1608c-3.4626-2.1997-7.5457-3.3596-11.8401-3.3596-4.1681,0-8.0307,1.049-11.48,3.1185l-.287.1721-.4451.4451c-3.5662,2.3053-6.2383,5.5699-7.9377,9.6962l-42.5982,101.9846c-.4504.9454-.4504,1.6509-.4504,2.1704,0,2.8899,2.3518,5.2411,5.2417,5.2411,2.2641,0,4.0273-1.1593,4.8205-3.1424l12.1098-28.9863,1.1342-2.7214,2.1003-5.0393,1.1342-2.7214,2.7733-6.6603h67.9466l2.7947,6.6603,1.137,2.7214,2.1053,5.0393,1.137,2.7214,12.0274,28.787c.5514,2.0409,2.3598,3.3417,4.6943,3.3417,2.9391,0,5.2404-2.395,5.2404-5.4517v-1.3845l-42.8573-102.6011ZM789.5533,582.4144l18.7501-45.0306c.7906-1.8947,2.2495-3.6254,4.2479-5.0816l.8198-.5468,1.1467-.4298c1.4855-.5567,3.0507-.8763,4.2944-.8763,2.2309,0,4.394.5986,6.2768,1.734l.4518.3601c1.6436,1.0457,3.0387,2.8109,3.7802,4.8471l18.8922,45.0239h-58.6597Z"/>
+                    <path class="sw-fill" d="M978.7482,519.9665c-2.1817,0-4.0658,1.3393-4.6717,3.2879l-42.8228,102.2384c-.6976,1.914-2.094,3.6805-3.735,4.7242l-.4504.3594c-1.8801,1.136-4.0446,1.7353-6.2781,1.7353-1.245,0-2.8102-.3196-4.293-.8763l-1.1507-.4318-.865-.576c-1.811-1.152-3.3404-2.9922-4.1987-5.0504l-42.6288-102.2656-.0771-.1694c-.9168-1.8356-2.7345-2.9756-4.7448-2.9756-2.8899,0-5.2404,2.3511-5.2404,5.2417,0,.5574,0,1.5048.5381,2.381l42.5278,101.8146c1.807,4.1289,4.5415,7.46,7.9191,9.6537l.4464.4464.287.1721c3.448,2.0695,7.3105,3.1185,11.48,3.1185,4.394,0,8.5635-1.2131,12.0726-3.5111l.6378-.3554c3.2978-2.3545,5.9366-5.6483,7.6493-9.566l42.6288-102.055.2099-.5036v-1.3852c0-3.0567-2.3013-5.4517-5.2404-5.4517Z"/>
+                    <path class="sw-fill" d="M1080.1575,631.6819h-41.3679c-22.5826,0-40.956-18.3733-40.956-40.9566v-3.7881h74.9747c3.0055,0,5.4517-2.5398,5.4517-5.6623,0-2.9544-2.4966-5.4503-5.4517-5.4503h-74.9747v-3.7888c0-22.5833,18.3733-40.9566,40.956-40.9566h41.3679c3.1743,0,5.6616-2.4867,5.6616-5.6609,0-3.0062-2.5392-5.4517-5.6616-5.4517h-41.3679c-28.2243,0-52.0692,23.8449-52.0692,52.0692v18.6895c0,28.2243,23.8449,52.0692,52.0692,52.0692h41.3679c3.1225,0,5.6616-2.4455,5.6616-5.4517,0-3.1743-2.4873-5.6609-5.6616-5.6609Z"/>
+                </g>
+                <g id="W-wave">
+                    <path class="sw-stroke" d="M1163.4892,144.6855c-9.3222-10.513-22.3257-18.9693-36.525-12.6674-15.2154,6.7529-25.3267,23.7757-33.3085,37.423-12.8021,21.889-23.0286,45.2437-33.2831,68.3768-11.8984,26.8417-23.5129,53.8206-36.4487,80.1941-12.3878,25.2561-25.8794,50.2816-42.8054,72.8748-13.8838,18.5324-30.704,36.3799-52.1047,46.3035-23.7793,11.0267-49.3263,9.0799-71.4452-4.9481-30.6419-19.4333-52.5573-51.4341-73.337-80.2754-21.0418-29.205-41.1527-61.3724-69.0154-84.805-10.2933-8.6567-22.4069-16.3034-36.0682-17.9842-23.6379-2.9083-44.9678,10.3273-60.8169,26.4353-9.7018,9.8603-18.0477,20.9841-25.884,32.3309"/>
+                    <line class="sw-stroke" x1="592.4524" y1="307.9489" x2="590.9548" y2="305.8363"/>
+                    <path class="sw-stroke" d="M1147.3359,120.5344c-240.5221-298.7124-225.1637,323.7681-416.5093,324.1044-46.7869.0822-97.6942-78.9087-138.3741-136.6895"/>
+                    <path class="sw-stroke" d="M26.6434,139.0648c21.198-18.8132,46.8345-5.5677,60.8258,14.2922,16.5526,23.4955,29.966,48.1608,41.8047,74.2699,21.2634,46.8944,38.7854,95.9256,66.9793,139.3797,14.0498,21.6544,30.784,41.6109,50.6757,58.2326,11.1791,9.3414,22.1463,17.4875,37.1007,19.1881,14.9079,1.6953,29.7492-2.3809,42.7432-9.2129,29.0918-15.2959,46.7458-41.3214,65.6494-67.1623,19.5549-26.7312,37.1926-54.9361,57.1335-81.3624,14.9822-19.8549,38.1376-37.0163,63.9842-37.8672,28.1589-.9271,51.8674,21.0922,68.1045,41.7369,4.3422,5.5209,8.3208,11.3169,12.0248,17.2759"/>
+                    <path class="sw-stroke" d="M26.5763,139.6068c27.9081-36.7802,60.3406-73.0841,107.016-36.4351,19.9609,15.6731,31.5719,38.7145,42.2836,61.0428,13.5072,28.1555,71.174,143.0793,86.152,173.8456,13.5364,27.8051,30.4243,57.3253,53.2228,78.7375,18.9516,17.7993,44.4958,31.8466,71.3917,26.9128,29.4438-5.4011,49.4339-30.0325,66.1928-52.5068,19.229-25.7866,36.8409-52.7093,55.926-78.5975,17.5294-23.7779,36.6763-53.15,65.55-64.1489,6.3524-2.4198,18.7196-3.1262,18.7196-3.1262,33.7659.7229,54.5888,31.7001,75.4118,54.933,36.4401,46.4658,62.4688,98.0945,109.3204,134.2345,83.2918,38.7215,140.5548-59.373,166.5835-121.3274,20.8229-46.4658,75.4832-170.3746,83.2918-185.8632,13.0143-23.2329,31.2344-46.4658,57.2631-43.8844,36.4401,0,59.8659,30.9772,79.3378,61.3092"/>
+                    <path class="sw-stroke" d="M33.3758,131.7873c240.5207-298.7124,228.9187,312.9335,428.8671,312.8163,51.0953-.0289,90.7419-78.9817,131.4219-136.7641"/>
+                </g>
+            </svg>
+        </div>
+        
+        <!-- Header -->
+        <div class="header">
+            <h1>Session Check-In</h1>
+            <p>Tap on the grid to indicate how you're feeling</p>
+        </div>
+        
+        <!-- User ID -->
+        <div class="form-group">
+            <label for="userId">Your Initials</label>
+            <input type="text" id="userId" placeholder="e.g., WR" maxlength="4" autocomplete="off">
+        </div>
+        
+        <!-- Timing -->
+        <div class="timing-selector">
+            <button class="timing-btn" data-timing="pre">Before Session</button>
+            <button class="timing-btn" data-timing="post">After Session</button>
+        </div>
+        
+        <!-- Grid -->
+        <p class="instruction">Tap the point that matches how you feel right now</p>
+        
+        <div class="grid-container">
+            <div class="emojigrid-wrapper">
+                
+                <!-- ===== BOTTOM ROW (Low Arousal): L→R = Unpleasant→Pleasant ===== -->
+                <!-- B1: sleepy/sad - closed curved eyes, frown -->
+                <div class="face-label face-b1">
+                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><path d="M10 16 Q14 13 18 16" stroke="#5C4A1F" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M22 16 Q26 13 30 16" stroke="#5C4A1F" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M13 27 Q20 23 27 27" stroke="#5C4A1F" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+                </div>
+                <!-- B2: sad - dot eyes, frown -->
+                <div class="face-label face-b2">
+                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><circle cx="14" cy="16" r="2" fill="#5C4A1F"/><circle cx="26" cy="16" r="2" fill="#5C4A1F"/><path d="M13 26 Q20 22 27 26" stroke="#5C4A1F" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+                </div>
+                <!-- B3: neutral - dot eyes, straight line -->
+                <div class="face-label face-b3">
+                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><circle cx="14" cy="16" r="2" fill="#5C4A1F"/><circle cx="26" cy="16" r="2" fill="#5C4A1F"/><line x1="13" y1="26" x2="27" y2="26" stroke="#5C4A1F" stroke-width="2" stroke-linecap="round"/></svg>
+                </div>
+                <!-- B4: content - dot eyes, slight smile -->
+                <div class="face-label face-b4">
+                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><circle cx="14" cy="16" r="2" fill="#5C4A1F"/><circle cx="26" cy="16" r="2" fill="#5C4A1F"/><path d="M13 25 Q20 29 27 25" stroke="#5C4A1F" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+                </div>
+                <!-- B5: relaxed/happy - happy curved eyes, smile -->
+                <div class="face-label face-b5">
+                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><path d="M10 17 Q14 20 18 17" stroke="#5C4A1F" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M22 17 Q26 20 30 17" stroke="#5C4A1F" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M12 24 Q20 30 28 24" stroke="#5C4A1F" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+                </div>
+                
+                <!-- ===== TOP ROW (High Arousal): L→R = Unpleasant→Pleasant ===== -->
+                <!-- T1: angry/enraged - V brows, eyes, grimace with teeth -->
+                <div class="face-label face-t1">
+                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><path d="M8 11 L16 14" stroke="#5C4A1F" stroke-width="2" stroke-linecap="round"/><path d="M32 11 L24 14" stroke="#5C4A1F" stroke-width="2" stroke-linecap="round"/><circle cx="13" cy="17" r="2.5" fill="#5C4A1F"/><circle cx="27" cy="17" r="2.5" fill="#5C4A1F"/><rect x="12" y="25" width="16" height="6" rx="1" fill="#5C4A1F"/><line x1="16" y1="25" x2="16" y2="31" stroke="#F5D547" stroke-width="1.5"/><line x1="20" y1="25" x2="20" y2="31" stroke="#F5D547" stroke-width="1.5"/><line x1="24" y1="25" x2="24" y2="31" stroke="#F5D547" stroke-width="1.5"/></svg>
+                </div>
+                <!-- T2: angry - V brows, eyes, open O mouth -->
+                <div class="face-label face-t2">
+                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><path d="M9 12 L16 15" stroke="#5C4A1F" stroke-width="2" stroke-linecap="round"/><path d="M31 12 L24 15" stroke="#5C4A1F" stroke-width="2" stroke-linecap="round"/><circle cx="13" cy="17" r="2.5" fill="#5C4A1F"/><circle cx="27" cy="17" r="2.5" fill="#5C4A1F"/><ellipse cx="20" cy="28" rx="5" ry="4" fill="#5C4A1F"/></svg>
+                </div>
+                <!-- T3: surprised - big eyes, O mouth -->
+                <div class="face-label face-t3">
+                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><circle cx="13" cy="15" r="3" fill="#5C4A1F"/><circle cx="27" cy="15" r="3" fill="#5C4A1F"/><ellipse cx="20" cy="27" rx="4" ry="5" fill="#5C4A1F"/></svg>
+                </div>
+                <!-- T4: excited/happy - eyes, big smile with teeth -->
+                <div class="face-label face-t4">
+                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><circle cx="13" cy="14" r="3" fill="#5C4A1F"/><circle cx="27" cy="14" r="3" fill="#5C4A1F"/><path d="M11 22 Q20 34 29 22" fill="#5C4A1F"/><path d="M13 23 Q20 22 27 23" stroke="#F5D547" stroke-width="2"/></svg>
+                </div>
+                <!-- T5: ecstatic - happy curved eyes, huge grin with teeth -->
+                <div class="face-label face-t5">
+                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><path d="M9 14 Q13 18 17 14" stroke="#5C4A1F" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M23 14 Q27 18 31 14" stroke="#5C4A1F" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M10 21 Q20 35 30 21" fill="#5C4A1F"/><path d="M12 22 Q20 21 28 22" stroke="#F5D547" stroke-width="2"/></svg>
+                </div>
+                
+                <!-- ===== LEFT COLUMN (Unpleasant): Bottom→Top = Low→High Arousal ===== -->
+                <!-- L2: sad/down - dot eyes, frown -->
+                <div class="face-label face-l2">
+                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><circle cx="14" cy="16" r="2" fill="#5C4A1F"/><circle cx="26" cy="16" r="2" fill="#5C4A1F"/><path d="M13 27 Q20 22 27 27" stroke="#5C4A1F" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+                </div>
+                <!-- L3: distressed - X eyes, frown -->
+                <div class="face-label face-l3">
+                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><path d="M10 13 L18 19 M18 13 L10 19" stroke="#5C4A1F" stroke-width="2" stroke-linecap="round"/><path d="M22 13 L30 19 M30 13 L22 19" stroke="#5C4A1F" stroke-width="2" stroke-linecap="round"/><path d="M13 28 Q20 23 27 28" stroke="#5C4A1F" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+                </div>
+                <!-- L4: anxious/worried - angled brows, eyes, open mouth -->
+                <div class="face-label face-l4">
+                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><path d="M9 12 L16 15" stroke="#5C4A1F" stroke-width="2" stroke-linecap="round"/><path d="M31 12 L24 15" stroke="#5C4A1F" stroke-width="2" stroke-linecap="round"/><circle cx="13" cy="17" r="2.5" fill="#5C4A1F"/><circle cx="27" cy="17" r="2.5" fill="#5C4A1F"/><ellipse cx="20" cy="28" rx="4" ry="3" fill="#5C4A1F"/></svg>
+                </div>
+                
+                <!-- ===== RIGHT COLUMN (Pleasant): Bottom→Top = Low→High Arousal ===== -->
+                <!-- R2: content - dot eyes, smile -->
+                <div class="face-label face-r2">
+                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><circle cx="14" cy="16" r="2" fill="#5C4A1F"/><circle cx="26" cy="16" r="2" fill="#5C4A1F"/><path d="M12 24 Q20 30 28 24" stroke="#5C4A1F" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+                </div>
+                <!-- R3: happy - bigger eyes, bigger smile -->
+                <div class="face-label face-r3">
+                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><circle cx="14" cy="15" r="2.5" fill="#5C4A1F"/><circle cx="26" cy="15" r="2.5" fill="#5C4A1F"/><path d="M11 23 Q20 31 29 23" stroke="#5C4A1F" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+                </div>
+                <!-- R4: very happy - big eyes, open smile with teeth -->
+                <div class="face-label face-r4">
+                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><circle cx="13" cy="14" r="3" fill="#5C4A1F"/><circle cx="27" cy="14" r="3" fill="#5C4A1F"/><path d="M11 22 Q20 33 29 22" fill="#5C4A1F"/><path d="M13 23 Q20 22 27 23" stroke="#F5D547" stroke-width="2"/></svg>
+                </div>
+                
+                <!-- Clickable grid area -->
+                <div class="emojigrid" id="emojigrid">
+                    <div class="grid-line-h"></div>
+                    <div class="grid-line-v"></div>
+                    
+                    <!-- Center face with background -->
+                    <div class="face-center">
+                        <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><circle cx="14" cy="16" r="2" fill="#5C4A1F"/><circle cx="26" cy="16" r="2" fill="#5C4A1F"/><line x1="14" y1="26" x2="26" y2="26" stroke="#5C4A1F" stroke-width="2" stroke-linecap="round"/></svg>
+                    </div>
+                    
+                    <div class="marker" id="marker"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Results -->
+        <div class="results" id="results">
+            <div class="results-row">
+                <span class="results-label">Valence</span>
+                <span class="results-value" id="valenceValue">—</span>
+            </div>
+            <div class="results-row">
+                <span class="results-label">Arousal</span>
+                <span class="results-value" id="arousalValue">—</span>
+            </div>
+        </div>
+        
+        <!-- Submit -->
+        <button class="submit-btn" id="submitBtn">Submit</button>
+        <p class="status" id="status"></p>
+        
+        <!-- Footer -->
+        <div class="footer-note">
+            Based on the validated <a href="https://doi.org/10.3389/fpsyg.2018.02396" target="_blank">EmojiGrid</a> (Toet et al., 2018)
+        </div>
+    </div>
+    
+    <script>
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzA-juMz1AvQwcRLysxv-GiZrywiXIj-5ejnqjEhjwRuNRQyOn64Zl7xRzmA_2gmrXV/exec';
+        
+        let state = { timing: null, valence: null, arousal: null, clicked: false };
+        
+        const grid = document.getElementById('emojigrid');
+        const marker = document.getElementById('marker');
+        const results = document.getElementById('results');
+        const valenceDisplay = document.getElementById('valenceValue');
+        const arousalDisplay = document.getElementById('arousalValue');
+        const submitBtn = document.getElementById('submitBtn');
+        const statusEl = document.getElementById('status');
+        const userIdInput = document.getElementById('userId');
+        const timingBtns = document.querySelectorAll('.timing-btn');
+        
+        timingBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                timingBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.timing = btn.dataset.timing;
+                checkReady();
+            });
+        });
+        
+        function handleGridInteraction(e) {
+            e.preventDefault();
+            const rect = grid.getBoundingClientRect();
+            let clientX, clientY;
+            if (e.touches) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            let x = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+            let y = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+            
+            state.valence = Math.round(x * 100);
+            state.arousal = Math.round((1 - y) * 100);
+            state.clicked = true;
+            
+            marker.style.left = `${x * 100}%`;
+            marker.style.top = `${y * 100}%`;
+            marker.classList.add('visible');
+            
+            results.classList.add('visible');
+            valenceDisplay.textContent = state.valence;
+            arousalDisplay.textContent = state.arousal;
+            checkReady();
+        }
+        
+        grid.addEventListener('click', handleGridInteraction);
+        grid.addEventListener('touchstart', handleGridInteraction);
+        
+        function checkReady() {
+            const userId = userIdInput.value.trim();
+            submitBtn.classList.toggle('ready', userId && state.timing && state.clicked);
+        }
+        
+        userIdInput.addEventListener('input', checkReady);
+        
+        submitBtn.addEventListener('click', async () => {
+            const userId = userIdInput.value.trim().toUpperCase();
+            if (!userId || !state.timing || !state.clicked) return;
+            
+            submitBtn.textContent = 'Submitting...';
+            submitBtn.classList.remove('ready');
+            statusEl.textContent = '';
+            statusEl.className = 'status';
+            
+            const data = {
+                timestamp: new Date().toISOString(),
+                userId: userId,
+                timing: state.timing,
+                valence: state.valence,
+                arousal: state.arousal
+            };
+            
+            try {
+                if (GOOGLE_SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+                    console.log('Demo mode:', data);
+                    console.table(data);
+                    statusEl.textContent = '✓ Demo: logged to console';
+                    statusEl.className = 'status success';
+                    submitBtn.textContent = 'Submitted';
+                    submitBtn.classList.add('success');
+                    return;
+                }
+                
+                await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                statusEl.textContent = '✓ Response recorded';
+                statusEl.className = 'status success';
+                submitBtn.textContent = 'Submitted';
+                submitBtn.classList.add('success');
+            } catch (error) {
+                console.error('Error:', error);
+                statusEl.textContent = 'Error. Try again.';
+                statusEl.className = 'status error';
+                submitBtn.textContent = 'Submit';
+                submitBtn.classList.add('ready');
+            }
+        });
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('user')) userIdInput.value = urlParams.get('user');
+        if (urlParams.get('timing')) {
+            const btn = document.querySelector(`.timing-btn[data-timing="${urlParams.get('timing')}"]`);
+            if (btn) btn.click();
+        }
+    </script>
+</body>
+</html>
