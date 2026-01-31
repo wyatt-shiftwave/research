@@ -156,10 +156,10 @@
         /* The clickable grid */
         .emojigrid {
             position: absolute;
-            top: 32px;
-            left: 32px;
-            right: 32px;
-            bottom: 32px;
+            top: 44px;
+            left: 44px;
+            right: 44px;
+            bottom: 44px;
             background: #0f0f0f;
             border: 1px solid #444444;
             cursor: crosshair;
@@ -170,6 +170,7 @@
         .grid-line-h, .grid-line-v {
             position: absolute;
             background: transparent;
+            pointer-events: none;
         }
         
         .grid-line-h {
@@ -188,85 +189,88 @@
             border-left: 1px dashed #444444;
         }
         
-        /* Click marker */
+        /* Click marker - shows emoji */
         .marker {
             position: absolute;
-            width: 16px;
-            height: 16px;
-            background: #ffffff;
-            border: 2px solid #0a0a0a;
-            border-radius: 50%;
+            font-size: 28px;
             transform: translate(-50%, -50%);
             pointer-events: none;
             display: none;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
             z-index: 10;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
         }
         
         .marker.visible {
             display: block;
         }
         
-        /* Face labels - evenly spaced around perimeter */
-        .face-label {
+        /* Emoji labels around perimeter */
+        .emoji-label {
             position: absolute;
-            width: 30px;
-            height: 30px;
+            font-size: 24px;
+            line-height: 1;
+            z-index: 10;
         }
         
-        .face-label svg {
-            width: 100%;
-            height: 100%;
+        /* Word labels */
+        .word-label {
+            position: absolute;
+            font-size: 0.65rem;
+            color: #666666;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
         }
         
-        /* 
-         * POSITIONING: Faces are evenly spaced on perimeter
-         * Grid area: top/left/right/bottom = 32px inset
-         * Face positions: 0%, 25%, 50%, 75%, 100% along each edge
-         */
+        /* Position emojis - on the perimeter, outside the grid box */
+        /* Grid area: top/left/right/bottom = 44px inset */
         
-        /* Bottom row (y = 100%) - positions at 0%, 25%, 50%, 75%, 100% */
-        .face-b1 { left: 16px; bottom: 16px; transform: translate(-50%, 50%); }
-        .face-b2 { left: calc(32px + (100% - 64px) * 0.25); bottom: 16px; transform: translate(-50%, 50%); }
-        .face-b3 { left: 50%; bottom: 16px; transform: translate(-50%, 50%); }
-        .face-b4 { left: calc(32px + (100% - 64px) * 0.75); bottom: 16px; transform: translate(-50%, 50%); }
-        .face-b5 { right: 16px; bottom: 16px; transform: translate(50%, 50%); }
+        /* Bottom row (low arousal) - on grid edge */
+        .emoji-b1 { left: 44px; bottom: 44px; transform: translate(-50%, 50%); }
+        .emoji-b2 { left: calc(44px + (100% - 88px) * 0.25); bottom: 44px; transform: translate(-50%, 50%); }
+        .emoji-b3 { left: 50%; bottom: 44px; transform: translate(-50%, 50%); }
+        .emoji-b4 { left: calc(44px + (100% - 88px) * 0.75); bottom: 44px; transform: translate(-50%, 50%); }
+        .emoji-b5 { right: 44px; bottom: 44px; transform: translate(50%, 50%); }
         
-        /* Top row (y = 0%) */
-        .face-t1 { left: 16px; top: 16px; transform: translate(-50%, -50%); }
-        .face-t2 { left: calc(32px + (100% - 64px) * 0.25); top: 16px; transform: translate(-50%, -50%); }
-        .face-t3 { left: 50%; top: 16px; transform: translate(-50%, -50%); }
-        .face-t4 { left: calc(32px + (100% - 64px) * 0.75); top: 16px; transform: translate(-50%, -50%); }
-        .face-t5 { right: 16px; top: 16px; transform: translate(50%, -50%); }
+        /* Top row (high arousal) - on grid edge */
+        .emoji-t1 { left: 44px; top: 44px; transform: translate(-50%, -50%); }
+        .emoji-t2 { left: calc(44px + (100% - 88px) * 0.25); top: 44px; transform: translate(-50%, -50%); }
+        .emoji-t3 { left: 50%; top: 44px; transform: translate(-50%, -50%); }
+        .emoji-t4 { left: calc(44px + (100% - 88px) * 0.75); top: 44px; transform: translate(-50%, -50%); }
+        .emoji-t5 { right: 44px; top: 44px; transform: translate(50%, -50%); }
         
-        /* Left column (x = 0%) - positions at 25%, 50%, 75% (corners handled by top/bottom) */
-        .face-l2 { left: 16px; top: calc(32px + (100% - 64px) * 0.75); transform: translate(-50%, -50%); }
-        .face-l3 { left: 16px; top: 50%; transform: translate(-50%, -50%); }
-        .face-l4 { left: 16px; top: calc(32px + (100% - 64px) * 0.25); transform: translate(-50%, -50%); }
+        /* Left column (unpleasant) - on grid edge */
+        .emoji-l2 { left: 44px; top: calc(44px + (100% - 88px) * 0.75); transform: translate(-50%, -50%); }
+        .emoji-l3 { left: 44px; top: 50%; transform: translate(-50%, -50%); }
+        .emoji-l4 { left: 44px; top: calc(44px + (100% - 88px) * 0.25); transform: translate(-50%, -50%); }
         
-        /* Right column (x = 100%) */
-        .face-r2 { right: 16px; top: calc(32px + (100% - 64px) * 0.75); transform: translate(50%, -50%); }
-        .face-r3 { right: 16px; top: 50%; transform: translate(50%, -50%); }
-        .face-r4 { right: 16px; top: calc(32px + (100% - 64px) * 0.25); transform: translate(50%, -50%); }
+        /* Right column (pleasant) - on grid edge */
+        .emoji-r2 { right: 44px; top: calc(44px + (100% - 88px) * 0.75); transform: translate(50%, -50%); }
+        .emoji-r3 { right: 44px; top: 50%; transform: translate(50%, -50%); }
+        .emoji-r4 { right: 44px; top: calc(44px + (100% - 88px) * 0.25); transform: translate(50%, -50%); }
         
-        /* Center face - with background to sit above grid lines */
-        .face-center {
+        /* Center */
+        .emoji-center {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 28px;
-            height: 28px;
+            font-size: 22px;
             z-index: 5;
             background: #0f0f0f;
-            border-radius: 50%;
             padding: 2px;
+            border-radius: 50%;
         }
         
-        .face-center svg {
-            width: 100%;
-            height: 100%;
-        }
+        /* Word label positions - outside emojis */
+        .word-tl { left: 44px; top: 2px; transform: translateX(-50%); }
+        .word-tc { left: 50%; top: 2px; transform: translateX(-50%); }
+        .word-tr { right: 44px; top: 2px; transform: translateX(50%); }
+        .word-ml { left: -8px; top: 50%; transform: translateY(-50%) rotate(-90deg); transform-origin: center center; }
+        .word-mr { right: -8px; top: 50%; transform: translateY(-50%) rotate(90deg); transform-origin: center center; }
+        .word-bl { left: 44px; bottom: 2px; transform: translateX(-50%); }
+        .word-bc { left: 50%; bottom: 2px; transform: translateX(-50%); }
+        .word-br { right: 44px; bottom: 2px; transform: translateX(50%); }
         
         /* Results display */
         .results {
@@ -423,89 +427,50 @@
         <div class="grid-container">
             <div class="emojigrid-wrapper">
                 
-                <!-- ===== BOTTOM ROW (Low Arousal): L→R = Unpleasant→Pleasant ===== -->
-                <!-- B1: sleepy/sad - closed curved eyes, frown -->
-                <div class="face-label face-b1">
-                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><path d="M10 16 Q14 13 18 16" stroke="#5C4A1F" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M22 16 Q26 13 30 16" stroke="#5C4A1F" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M13 27 Q20 23 27 27" stroke="#5C4A1F" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-                </div>
-                <!-- B2: sad - dot eyes, frown -->
-                <div class="face-label face-b2">
-                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><circle cx="14" cy="16" r="2" fill="#5C4A1F"/><circle cx="26" cy="16" r="2" fill="#5C4A1F"/><path d="M13 26 Q20 22 27 26" stroke="#5C4A1F" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-                </div>
-                <!-- B3: neutral - dot eyes, straight line -->
-                <div class="face-label face-b3">
-                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><circle cx="14" cy="16" r="2" fill="#5C4A1F"/><circle cx="26" cy="16" r="2" fill="#5C4A1F"/><line x1="13" y1="26" x2="27" y2="26" stroke="#5C4A1F" stroke-width="2" stroke-linecap="round"/></svg>
-                </div>
-                <!-- B4: content - dot eyes, slight smile -->
-                <div class="face-label face-b4">
-                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><circle cx="14" cy="16" r="2" fill="#5C4A1F"/><circle cx="26" cy="16" r="2" fill="#5C4A1F"/><path d="M13 25 Q20 29 27 25" stroke="#5C4A1F" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-                </div>
-                <!-- B5: relaxed/happy - happy curved eyes, smile -->
-                <div class="face-label face-b5">
-                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><path d="M10 17 Q14 20 18 17" stroke="#5C4A1F" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M22 17 Q26 20 30 17" stroke="#5C4A1F" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M12 24 Q20 30 28 24" stroke="#5C4A1F" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-                </div>
+                <!-- Word labels in corners and midpoints -->
+                <span class="word-label word-tl">Stressed</span>
+                <span class="word-label word-tc">Alert</span>
+                <span class="word-label word-tr">Excited</span>
+                <span class="word-label word-ml">Unhappy</span>
+                <span class="word-label word-mr">Content</span>
+                <span class="word-label word-bl">Sad</span>
+                <span class="word-label word-bc">Tired</span>
+                <span class="word-label word-br">Relaxed</span>
                 
-                <!-- ===== TOP ROW (High Arousal): L→R = Unpleasant→Pleasant ===== -->
-                <!-- T1: angry/enraged - V brows, eyes, grimace with teeth -->
-                <div class="face-label face-t1">
-                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><path d="M8 11 L16 14" stroke="#5C4A1F" stroke-width="2" stroke-linecap="round"/><path d="M32 11 L24 14" stroke="#5C4A1F" stroke-width="2" stroke-linecap="round"/><circle cx="13" cy="17" r="2.5" fill="#5C4A1F"/><circle cx="27" cy="17" r="2.5" fill="#5C4A1F"/><rect x="12" y="25" width="16" height="6" rx="1" fill="#5C4A1F"/><line x1="16" y1="25" x2="16" y2="31" stroke="#F5D547" stroke-width="1.5"/><line x1="20" y1="25" x2="20" y2="31" stroke="#F5D547" stroke-width="1.5"/><line x1="24" y1="25" x2="24" y2="31" stroke="#F5D547" stroke-width="1.5"/></svg>
-                </div>
-                <!-- T2: angry - V brows, eyes, open O mouth -->
-                <div class="face-label face-t2">
-                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><path d="M9 12 L16 15" stroke="#5C4A1F" stroke-width="2" stroke-linecap="round"/><path d="M31 12 L24 15" stroke="#5C4A1F" stroke-width="2" stroke-linecap="round"/><circle cx="13" cy="17" r="2.5" fill="#5C4A1F"/><circle cx="27" cy="17" r="2.5" fill="#5C4A1F"/><ellipse cx="20" cy="28" rx="5" ry="4" fill="#5C4A1F"/></svg>
-                </div>
-                <!-- T3: surprised - big eyes, O mouth -->
-                <div class="face-label face-t3">
-                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><circle cx="13" cy="15" r="3" fill="#5C4A1F"/><circle cx="27" cy="15" r="3" fill="#5C4A1F"/><ellipse cx="20" cy="27" rx="4" ry="5" fill="#5C4A1F"/></svg>
-                </div>
-                <!-- T4: excited/happy - eyes, big smile with teeth -->
-                <div class="face-label face-t4">
-                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><circle cx="13" cy="14" r="3" fill="#5C4A1F"/><circle cx="27" cy="14" r="3" fill="#5C4A1F"/><path d="M11 22 Q20 34 29 22" fill="#5C4A1F"/><path d="M13 23 Q20 22 27 23" stroke="#F5D547" stroke-width="2"/></svg>
-                </div>
-                <!-- T5: ecstatic - happy curved eyes, huge grin with teeth -->
-                <div class="face-label face-t5">
-                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><path d="M9 14 Q13 18 17 14" stroke="#5C4A1F" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M23 14 Q27 18 31 14" stroke="#5C4A1F" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M10 21 Q20 35 30 21" fill="#5C4A1F"/><path d="M12 22 Q20 21 28 22" stroke="#F5D547" stroke-width="2"/></svg>
-                </div>
+                <!-- BOTTOM ROW (Low Arousal): Sad → Tired → Relaxed -->
+                <span class="emoji-label emoji-b1">😢</span>
+                <span class="emoji-label emoji-b2">😞</span>
+                <span class="emoji-label emoji-b3">😴</span>
+                <span class="emoji-label emoji-b4">😌</span>
+                <span class="emoji-label emoji-b5">😊</span>
                 
-                <!-- ===== LEFT COLUMN (Unpleasant): Bottom→Top = Low→High Arousal ===== -->
-                <!-- L2: sad/down - dot eyes, frown -->
-                <div class="face-label face-l2">
-                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><circle cx="14" cy="16" r="2" fill="#5C4A1F"/><circle cx="26" cy="16" r="2" fill="#5C4A1F"/><path d="M13 27 Q20 22 27 27" stroke="#5C4A1F" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-                </div>
-                <!-- L3: distressed - X eyes, frown -->
-                <div class="face-label face-l3">
-                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><path d="M10 13 L18 19 M18 13 L10 19" stroke="#5C4A1F" stroke-width="2" stroke-linecap="round"/><path d="M22 13 L30 19 M30 13 L22 19" stroke="#5C4A1F" stroke-width="2" stroke-linecap="round"/><path d="M13 28 Q20 23 27 28" stroke="#5C4A1F" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-                </div>
-                <!-- L4: anxious/worried - angled brows, eyes, open mouth -->
-                <div class="face-label face-l4">
-                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><path d="M9 12 L16 15" stroke="#5C4A1F" stroke-width="2" stroke-linecap="round"/><path d="M31 12 L24 15" stroke="#5C4A1F" stroke-width="2" stroke-linecap="round"/><circle cx="13" cy="17" r="2.5" fill="#5C4A1F"/><circle cx="27" cy="17" r="2.5" fill="#5C4A1F"/><ellipse cx="20" cy="28" rx="4" ry="3" fill="#5C4A1F"/></svg>
-                </div>
+                <!-- TOP ROW (High Arousal): Stressed → Alert → Excited -->
+                <span class="emoji-label emoji-t1">😤</span>
+                <span class="emoji-label emoji-t2">😠</span>
+                <span class="emoji-label emoji-t3">😮</span>
+                <span class="emoji-label emoji-t4">😃</span>
+                <span class="emoji-label emoji-t5">🤩</span>
                 
-                <!-- ===== RIGHT COLUMN (Pleasant): Bottom→Top = Low→High Arousal ===== -->
-                <!-- R2: content - dot eyes, smile -->
-                <div class="face-label face-r2">
-                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><circle cx="14" cy="16" r="2" fill="#5C4A1F"/><circle cx="26" cy="16" r="2" fill="#5C4A1F"/><path d="M12 24 Q20 30 28 24" stroke="#5C4A1F" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-                </div>
-                <!-- R3: happy - bigger eyes, bigger smile -->
-                <div class="face-label face-r3">
-                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><circle cx="14" cy="15" r="2.5" fill="#5C4A1F"/><circle cx="26" cy="15" r="2.5" fill="#5C4A1F"/><path d="M11 23 Q20 31 29 23" stroke="#5C4A1F" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-                </div>
-                <!-- R4: very happy - big eyes, open smile with teeth -->
-                <div class="face-label face-r4">
-                    <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><circle cx="13" cy="14" r="3" fill="#5C4A1F"/><circle cx="27" cy="14" r="3" fill="#5C4A1F"/><path d="M11 22 Q20 33 29 22" fill="#5C4A1F"/><path d="M13 23 Q20 22 27 23" stroke="#F5D547" stroke-width="2"/></svg>
-                </div>
+                <!-- LEFT COLUMN (Unpleasant): varying arousal -->
+                <span class="emoji-label emoji-l2">😔</span>
+                <span class="emoji-label emoji-l3">😟</span>
+                <span class="emoji-label emoji-l4">😰</span>
+                
+                <!-- RIGHT COLUMN (Pleasant): varying arousal -->
+                <span class="emoji-label emoji-r2">🙂</span>
+                <span class="emoji-label emoji-r3">😀</span>
+                <span class="emoji-label emoji-r4">😄</span>
                 
                 <!-- Clickable grid area -->
                 <div class="emojigrid" id="emojigrid">
                     <div class="grid-line-h"></div>
                     <div class="grid-line-v"></div>
                     
-                    <!-- Center face with background -->
-                    <div class="face-center">
-                        <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#F5D547"/><circle cx="14" cy="16" r="2" fill="#5C4A1F"/><circle cx="26" cy="16" r="2" fill="#5C4A1F"/><line x1="14" y1="26" x2="26" y2="26" stroke="#5C4A1F" stroke-width="2" stroke-linecap="round"/></svg>
-                    </div>
+                    <!-- Center neutral face -->
+                    <span class="emoji-center">😐</span>
                     
-                    <div class="marker" id="marker"></div>
+                    <!-- Marker shows selected emoji -->
+                    <span class="marker" id="marker">😐</span>
                 </div>
             </div>
         </div>
@@ -544,9 +509,62 @@
     </div>
     
     <script>
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz0jprLZwPL7V5dYDmwxO-cOYKBmsl4_SfxSHGpQvVKnImBUb_aARrqbpQv4g9ML5Xt/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzA-juMz1AvQwcRLysxv-GiZrywiXIj-5ejnqjEhjwRuNRQyOn64Zl7xRzmA_2gmrXV/exec';
         
         let state = { timing: null, valence: null, arousal: null, clicked: false };
+        
+        // Emoji mapping for click feedback - based on quadrant/position
+        const emojiMap = [
+            // [valence threshold, arousal threshold, emoji]
+            // High arousal (top)
+            { vMin: 0, vMax: 20, aMin: 80, aMax: 100, emoji: '😤' },
+            { vMin: 20, vMax: 40, aMin: 80, aMax: 100, emoji: '😠' },
+            { vMin: 40, vMax: 60, aMin: 80, aMax: 100, emoji: '😮' },
+            { vMin: 60, vMax: 80, aMin: 80, aMax: 100, emoji: '😃' },
+            { vMin: 80, vMax: 100, aMin: 80, aMax: 100, emoji: '🤩' },
+            
+            // High-mid arousal
+            { vMin: 0, vMax: 20, aMin: 60, aMax: 80, emoji: '😰' },
+            { vMin: 20, vMax: 40, aMin: 60, aMax: 80, emoji: '😟' },
+            { vMin: 40, vMax: 60, aMin: 60, aMax: 80, emoji: '😐' },
+            { vMin: 60, vMax: 80, aMin: 60, aMax: 80, emoji: '🙂' },
+            { vMin: 80, vMax: 100, aMin: 60, aMax: 80, emoji: '😄' },
+            
+            // Mid arousal (center row)
+            { vMin: 0, vMax: 20, aMin: 40, aMax: 60, emoji: '😟' },
+            { vMin: 20, vMax: 40, aMin: 40, aMax: 60, emoji: '😔' },
+            { vMin: 40, vMax: 60, aMin: 40, aMax: 60, emoji: '😐' },
+            { vMin: 60, vMax: 80, aMin: 40, aMax: 60, emoji: '😀' },
+            { vMin: 80, vMax: 100, aMin: 40, aMax: 60, emoji: '😃' },
+            
+            // Low-mid arousal
+            { vMin: 0, vMax: 20, aMin: 20, aMax: 40, emoji: '😔' },
+            { vMin: 20, vMax: 40, aMin: 20, aMax: 40, emoji: '😞' },
+            { vMin: 40, vMax: 60, aMin: 20, aMax: 40, emoji: '😴' },
+            { vMin: 60, vMax: 80, aMin: 20, aMax: 40, emoji: '😌' },
+            { vMin: 80, vMax: 100, aMin: 20, aMax: 40, emoji: '🙂' },
+            
+            // Low arousal (bottom)
+            { vMin: 0, vMax: 20, aMin: 0, aMax: 20, emoji: '😢' },
+            { vMin: 20, vMax: 40, aMin: 0, aMax: 20, emoji: '😞' },
+            { vMin: 40, vMax: 60, aMin: 0, aMax: 20, emoji: '😴' },
+            { vMin: 60, vMax: 80, aMin: 0, aMax: 20, emoji: '😌' },
+            { vMin: 80, vMax: 100, aMin: 0, aMax: 20, emoji: '😊' },
+        ];
+        
+        function getEmojiForPosition(valence, arousal) {
+            for (const m of emojiMap) {
+                if (valence >= m.vMin && valence < m.vMax && arousal >= m.aMin && arousal < m.aMax) {
+                    return m.emoji;
+                }
+            }
+            // Edge case: exactly 100
+            if (valence === 100 && arousal === 100) return '🤩';
+            if (valence === 100 && arousal === 0) return '😊';
+            if (valence === 0 && arousal === 100) return '😤';
+            if (valence === 0 && arousal === 0) return '😢';
+            return '😐';
+        }
         
         const grid = document.getElementById('emojigrid');
         const marker = document.getElementById('marker');
@@ -587,8 +605,10 @@
             state.arousal = Math.round((1 - y) * 100);
             state.clicked = true;
             
+            // Update marker position and emoji
             marker.style.left = `${x * 100}%`;
             marker.style.top = `${y * 100}%`;
+            marker.textContent = getEmojiForPosition(state.valence, state.arousal);
             marker.classList.add('visible');
             
             results.classList.add('visible');
@@ -662,6 +682,7 @@
         
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('user')) userIdInput.value = urlParams.get('user');
+        if (urlParams.get('protocol')) protocolInput.value = urlParams.get('protocol');
         if (urlParams.get('timing')) {
             const btn = document.querySelector(`.timing-btn[data-timing="${urlParams.get('timing')}"]`);
             if (btn) btn.click();
