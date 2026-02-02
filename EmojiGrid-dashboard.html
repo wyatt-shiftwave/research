@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shiftwave EmojiGrid Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 24px;
+        }
+        
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .header h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: #151515;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 24px;
+        }
+        
+        .card-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 16px;
+        }
+        
+        /* Affect Space Plot */
+        .affect-plot {
+            position: relative;
+            width: 100%;
+            padding-bottom: 100%;
+            background: #0f0f0f;
+            border: 1px solid #333;
+            border-radius: 8px;
+        }
+        
+        .affect-plot-inner {
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            right: 40px;
+            bottom: 40px;
+        }
+        
+        .affect-plot svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .axis-label {
+            position: absolute;
+            font-size: 0.7rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .axis-label.top { top: 12px; left: 50%; transform: translateX(-50%); }
+        .axis-label.bottom { bottom: 12px; left: 50%; transform: translateX(-50%); }
+        .axis-label.left { left: 8px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
+        .axis-label.right { right: 8px; top: 50%; transform: translateY(-50%) rotate(90deg); }
+        
+        .quadrant-label {
+            position: absolute;
+            font-size: 0.65rem;
+            color: #444;
+            pointer-events: none;
+        }
+        
+        .quadrant-label.tl { top: 48px; left: 48px; }
+        .quadrant-label.tr { top: 48px; right: 48px; text-align: right; }
+        .quadrant-label.bl { bottom: 48px; left: 48px; }
+        .quadrant-label.br { bottom: 48px; right: 48px; text-align: right; }
+        
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        
+        .stat-box {
+            text-align: center;
+            padding: 16px;
+            background: #0f0f0f;
+            border-radius: 8px;
+        }
+        
+        .stat-value {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        
+        .stat-value.positive { color: #4ade80; }
+        .stat-value.negative { color: #f87171; }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        /* Session list */
+        .session-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .session-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: #0f0f0f;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        
+        .session-item:hover {
+            background: #1a1a1a;
+        }
+        
+        .session-item.selected {
+            background: #1a1a1a;
+            border: 1px solid #444;
+        }
+        
+        .session-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .session-user {
+            width: 36px;
+            height: 36px;
+            background: #333;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        
+        .session-details h4 {
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+        
+        .session-details p {
+            font-size: 0.75rem;
+            color: #666;
+        }
+        
+        .session-delta {
+            text-align: right;
+        }
+        
+        .delta-arrow {
+            font-size: 1.2rem;
+        }
+        
+        .delta-values {
+            font-size: 0.7rem;
+            color: #666;
+        }
+        
+        /* Protocol breakdown */
+        .protocol-bar {
+            margin-bottom: 16px;
+        }
+        
+        .protocol-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+        }
+        
+        .protocol-name {
+            color: #ccc;
+        }
+        
+        .protocol-count {
+            color: #666;
+        }
+        
+        .bar-container {
+            height: 8px;
+            background: #0f0f0f;
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+        }
+        
+        .bar-segment {
+            height: 100%;
+        }
+        
+        .bar-valence { background: #60a5fa; }
+        .bar-arousal { background: #f472b6; }
+        
+        /* Legend */
+        .legend {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            margin-top: 16px;
+            font-size: 0.75rem;
+            color: #666;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        
+        .legend-dot.pre { background: #666; border: 2px solid #888; }
+        .legend-dot.post { background: #4ade80; }
+        .legend-line { width: 20px; height: 2px; background: #888; }
+        
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #888;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .filter-btn:hover {
+            border-color: #555;
+            color: #ccc;
+        }
+        
+        .filter-btn.active {
+            background: #fff;
+            border-color: #fff;
+            color: #0a0a0a;
+        }
+        
+        /* Data input */
+        .data-input {
+            margin-bottom: 24px;
+        }
+        
+        .data-input textarea {
+            width: 100%;
+            height: 120px;
+            background: #151515;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-family: monospace;
+            font-size: 0.8rem;
+            resize: vertical;
+        }
+        
+        .data-input textarea:focus {
+            outline: none;
+            border-color: #555;
+        }
+        
+        .data-input label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            background: #fff;
+            color: #0a0a0a;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        
+        .btn:hover {
+            background: #e0e0e0;
+        }
+        
+        /* Trajectory details */
+        .trajectory-detail {
+            background: #0f0f0f;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        
+        .trajectory-detail h4 {
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+        
+        .trajectory-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #222;
+            font-size: 0.85rem;
+        }
+        
+        .trajectory-row:last-child {
+            border-bottom: none;
+        }
+        
+        .trajectory-label {
+            color: #666;
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <h1>EmojiGrid Dashboard</h1>
+            <p>Affect Space Trajectory Analysis</p>
+        </div>
+        
+        <!-- Data controls -->
+        <div style="text-align: center; margin-bottom: 24px;">
+            <button class="btn" onclick="fetchSheetData()">↻ Refresh Data</button>
+            <span style="color: #444; font-size: 0.75rem; margin-left: 12px;" id="lastUpdated"></span>
+        </div>
+        
+        <div class="grid">
+            <!-- Affect Space Plot -->
+            <div class="card">
+                <div class="card-title">Affect Space Trajectories</div>
+                <div class="filters" id="userFilters"></div>
+                <div class="affect-plot">
+                    <span class="axis-label top">High Arousal</span>
+                    <span class="axis-label bottom">Low Arousal</span>
+                    <span class="axis-label left">Unpleasant</span>
+                    <span class="axis-label right">Pleasant</span>
+                    <span class="quadrant-label tl">Stressed</span>
+                    <span class="quadrant-label tr">Excited</span>
+                    <span class="quadrant-label bl">Sad</span>
+                    <span class="quadrant-label br">Relaxed</span>
+                    <div class="affect-plot-inner">
+                        <svg id="plotSvg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+                            <!-- Grid lines -->
+                            <line x1="50" y1="0" x2="50" y2="100" stroke="#333" stroke-width="0.5" stroke-dasharray="2,2"/>
+                            <line x1="0" y1="50" x2="100" y2="50" stroke="#333" stroke-width="0.5" stroke-dasharray="2,2"/>
+                            <!-- Trajectories will be added here -->
+                        </svg>
+                    </div>
+                </div>
+                <div class="legend">
+                    <div class="legend-item"><span class="legend-dot pre"></span> Pre-session</div>
+                    <div class="legend-item"><span class="legend-dot post"></span> Post-session</div>
+                    <div class="legend-item"><span class="legend-line"></span> Trajectory</div>
+                </div>
+            </div>
+            
+            <!-- Summary Stats -->
+            <div class="card">
+                <div class="card-title">Summary Statistics</div>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-value" id="totalSessions">0</div>
+                        <div class="stat-label">Sessions</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="avgValenceShift">—</div>
+                        <div class="stat-label">Avg Valence Δ</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="avgArousalShift">—</div>
+                        <div class="stat-label">Avg Arousal Δ</div>
+                    </div>
+                </div>
+                
+                <div class="trajectory-detail">
+                    <h4>Typical Movement</h4>
+                    <div class="trajectory-row">
+                        <span class="trajectory-label">Valence Direction</span>
+                        <span id="valenceDirection">—</span>
+                    </div>
+                    <div class="trajectory-row">
+                        <span class="trajectory-label">Arousal Direction</span>
+                        <span id="arousalDirection">—</span>
+                    </div>
+                    <div class="trajectory-row">
+                        <span class="trajectory-label">Most Common Outcome</span>
+                        <span id="commonOutcome">—</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Session List -->
+            <div class="card">
+                <div class="card-title">Individual Sessions</div>
+                <div class="session-list" id="sessionList"></div>
+            </div>
+            
+            <!-- Protocol Breakdown -->
+            <div class="card">
+                <div class="card-title">By Protocol</div>
+                <div id="protocolBreakdown"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let allSessions = [];
+        let activeUsers = new Set();
+        
+        const userColors = {
+            'DR': '#60a5fa',
+            'MN': '#f472b6',
+            'WR': '#4ade80',
+            'DS': '#fbbf24',
+            'KP': '#a78bfa',
+            'default': '#888'
+        };
+        
+        function parseCSV(csv) {
+            const lines = csv.trim().split('\n');
+            const headers = lines[0].split(',');
+            const data = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(',');
+                const row = {};
+                headers.forEach((h, idx) => {
+                    row[h.trim()] = values[idx]?.trim() || '';
+                });
+                data.push(row);
+            }
+            return data;
+        }
+        
+        function pairSessions(data) {
+            const sessions = [];
+            const pending = {};
+            
+            data.forEach(row => {
+                const key = `${row['User ID']}_${row['Protocol']}_${row['Timestamp'].split('T')[0]}`;
+                
+                if (row['Timing'] === 'pre') {
+                    pending[key] = row;
+                } else if (row['Timing'] === 'post' && pending[key]) {
+                    sessions.push({
+                        userId: row['User ID'],
+                        protocol: row['Protocol'],
+                        date: row['Timestamp'].split('T')[0],
+                        pre: {
+                            valence: parseInt(pending[key]['Valence (0-100)']),
+                            arousal: parseInt(pending[key]['Arousal (0-100)']),
+                            comment: pending[key]['Comment']
+                        },
+                        post: {
+                            valence: parseInt(row['Valence (0-100)']),
+                            arousal: parseInt(row['Arousal (0-100)']),
+                            comment: row['Comment']
+                        }
+                    });
+                    delete pending[key];
+                }
+            });
+            
+            return sessions;
+        }
+        
+        function loadData() {
+            const csv = document.getElementById('csvInput').value;
+            if (!csv.trim()) return;
+            
+            const data = parseCSV(csv);
+            allSessions = pairSessions(data);
+            activeUsers = new Set(allSessions.map(s => s.userId));
+            
+            renderAll();
+        }
+        
+        function loadSampleData() {
+            const sampleCSV = `Timestamp,User ID,Protocol,Timing,Valence (0-100),Arousal (0-100),Valence Category,Arousal Category,Quadrant,Comment,Received At
+2026-01-30T20:59:19.083Z,DR,Evolver,pre,21,36,Unpleasant,Medium,Sad/Depressed,,2026-01-30T20:59:21.294Z
+2026-01-30T21:06:42.283Z,DR,Evolver,post,90,36,Pleasant,Medium,Calm/Relaxed,,2026-01-30T21:06:44.429Z
+2026-01-30T23:06:12.029Z,MN,SS Meditate,pre,23,26,Unpleasant,Low,Sad/Depressed,,2026-01-30T23:06:14.029Z
+2026-01-30T23:07:15.047Z,MN,SS Meditate,post,57,59,Neutral,Medium,Excited/Happy,,2026-01-30T23:07:17.916Z
+2026-01-30T23:42:51.202Z,WR,Mastering the foundation,pre,55,71,Neutral,High,Excited/Happy,Just finished light workout at THP,2026-01-30T23:42:53.334Z
+2026-01-30T23:55:23.560Z,WR,Mastering the foundation,post,55,38,Neutral,Medium,Calm/Relaxed,Feel chiller,2026-01-30T23:55:25.865Z
+2026-02-01T16:44:52.287Z,DS,This is Shiftwave,pre,84,35,Pleasant,Medium,Calm/Relaxed,,2026-02-01T16:44:54.194Z
+2026-02-01T16:56:46.483Z,DS,This is Shiftwave,post,81,29,Pleasant,Low,Calm/Relaxed,,2026-02-01T16:56:48.158Z
+2026-02-01T20:32:30.532Z,WR,SS Meditate,pre,68,49,Pleasant,Medium,Calm/Relaxed,,2026-02-01T20:32:32.432Z
+2026-02-01T21:16:13.028Z,WR,SS Meditate,post,50,37,Neutral,Medium,Calm/Relaxed,,2026-02-01T21:16:14.950Z
+2026-02-02T19:23:08.961Z,KP,SS Meditate Express,pre,50,29,Neutral,Low,Calm/Relaxed,,2026-02-02T19:23:10.767Z
+2026-02-02T19:55:48.393Z,KP,SS Meditate Express,post,68,49,Pleasant,Medium,Calm/Relaxed,,2026-02-02T19:55:49.737Z`;
+            
+            document.getElementById('csvInput').value = sampleCSV;
+            loadData();
+        }
+        
+        function renderAll() {
+            renderFilters();
+            renderPlot();
+            renderStats();
+            renderSessionList();
+            renderProtocolBreakdown();
+        }
+        
+        function renderFilters() {
+            const container = document.getElementById('userFilters');
+            const users = [...new Set(allSessions.map(s => s.userId))];
+            
+            container.innerHTML = `
+                <button class="filter-btn ${activeUsers.size === users.length ? 'active' : ''}" onclick="toggleAllUsers()">All</button>
+                ${users.map(u => `
+                    <button class="filter-btn ${activeUsers.has(u) ? 'active' : ''}" 
+                            onclick="toggleUser('${u}')"
+                            style="${activeUsers.has(u) ? `background: ${userColors[u] || userColors.default}; border-color: ${userColors[u] || userColors.default};` : ''}">
+                        ${u}
+                    </button>
+                `).join('')}
+            `;
+        }
+        
+        function toggleUser(userId) {
+            if (activeUsers.has(userId)) {
+                activeUsers.delete(userId);
+            } else {
+                activeUsers.add(userId);
+            }
+            renderAll();
+        }
+        
+        function toggleAllUsers() {
+            const users = [...new Set(allSessions.map(s => s.userId))];
+            if (activeUsers.size === users.length) {
+                activeUsers.clear();
+            } else {
+                activeUsers = new Set(users);
+            }
+            renderAll();
+        }
+        
+        function renderPlot() {
+            const svg = document.getElementById('plotSvg');
+            // Clear existing trajectories (keep grid lines)
+            const trajectories = svg.querySelectorAll('.trajectory, .point');
+            trajectories.forEach(t => t.remove());
+            
+            const filtered = allSessions.filter(s => activeUsers.has(s.userId));
+            
+            filtered.forEach((session, idx) => {
+                const color = userColors[session.userId] || userColors.default;
+                
+                // Convert to SVG coordinates (y is inverted)
+                const preX = session.pre.valence;
+                const preY = 100 - session.pre.arousal;
+                const postX = session.post.valence;
+                const postY = 100 - session.post.arousal;
+                
+                // Arrow line
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('class', 'trajectory');
+                line.setAttribute('x1', preX);
+                line.setAttribute('y1', preY);
+                line.setAttribute('x2', postX);
+                line.setAttribute('y2', postY);
+                line.setAttribute('stroke', color);
+                line.setAttribute('stroke-width', '1.5');
+                line.setAttribute('opacity', '0.7');
+                svg.appendChild(line);
+                
+                // Arrowhead
+                const angle = Math.atan2(postY - preY, postX - preX);
+                const arrowSize = 4;
+                const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                arrow.setAttribute('class', 'trajectory');
+                const ax = postX - arrowSize * Math.cos(angle - Math.PI / 6);
+                const ay = postY - arrowSize * Math.sin(angle - Math.PI / 6);
+                const bx = postX - arrowSize * Math.cos(angle + Math.PI / 6);
+                const by = postY - arrowSize * Math.sin(angle + Math.PI / 6);
+                arrow.setAttribute('points', `${postX},${postY} ${ax},${ay} ${bx},${by}`);
+                arrow.setAttribute('fill', color);
+                arrow.setAttribute('opacity', '0.7');
+                svg.appendChild(arrow);
+                
+                // Pre point (hollow)
+                const preCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                preCircle.setAttribute('class', 'point');
+                preCircle.setAttribute('cx', preX);
+                preCircle.setAttribute('cy', preY);
+                preCircle.setAttribute('r', '4');
+                preCircle.setAttribute('fill', '#0f0f0f');
+                preCircle.setAttribute('stroke', color);
+                preCircle.setAttribute('stroke-width', '2');
+                svg.appendChild(preCircle);
+                
+                // Post point (filled)
+                const postCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                postCircle.setAttribute('class', 'point');
+                postCircle.setAttribute('cx', postX);
+                postCircle.setAttribute('cy', postY);
+                postCircle.setAttribute('r', '5');
+                postCircle.setAttribute('fill', color);
+                svg.appendChild(postCircle);
+            });
+        }
+        
+        function renderStats() {
+            const filtered = allSessions.filter(s => activeUsers.has(s.userId));
+            
+            document.getElementById('totalSessions').textContent = filtered.length;
+            
+            if (filtered.length === 0) {
+                document.getElementById('avgValenceShift').textContent = '—';
+                document.getElementById('avgArousalShift').textContent = '—';
+                document.getElementById('valenceDirection').textContent = '—';
+                document.getElementById('arousalDirection').textContent = '—';
+                document.getElementById('commonOutcome').textContent = '—';
+                return;
+            }
+            
+            const avgValence = filtered.reduce((sum, s) => sum + (s.post.valence - s.pre.valence), 0) / filtered.length;
+            const avgArousal = filtered.reduce((sum, s) => sum + (s.post.arousal - s.pre.arousal), 0) / filtered.length;
+            
+            const valenceEl = document.getElementById('avgValenceShift');
+            valenceEl.textContent = (avgValence >= 0 ? '+' : '') + avgValence.toFixed(1);
+            valenceEl.className = 'stat-value ' + (avgValence >= 0 ? 'positive' : 'negative');
+            
+            const arousalEl = document.getElementById('avgArousalShift');
+            arousalEl.textContent = (avgArousal >= 0 ? '+' : '') + avgArousal.toFixed(1);
+            arousalEl.className = 'stat-value ' + (avgArousal <= 0 ? 'positive' : 'negative'); // Lower arousal often desired
+            
+            // Directions
+            const valenceUp = filtered.filter(s => s.post.valence > s.pre.valence).length;
+            const valenceDown = filtered.filter(s => s.post.valence < s.pre.valence).length;
+            document.getElementById('valenceDirection').textContent = 
+                valenceUp > valenceDown ? `↑ More Pleasant (${valenceUp}/${filtered.length})` :
+                valenceDown > valenceUp ? `↓ Less Pleasant (${valenceDown}/${filtered.length})` :
+                'Mixed';
+            
+            const arousalUp = filtered.filter(s => s.post.arousal > s.pre.arousal).length;
+            const arousalDown = filtered.filter(s => s.post.arousal < s.pre.arousal).length;
+            document.getElementById('arousalDirection').textContent = 
+                arousalDown > arousalUp ? `↓ Calmer (${arousalDown}/${filtered.length})` :
+                arousalUp > arousalDown ? `↑ More Alert (${arousalUp}/${filtered.length})` :
+                'Mixed';
+            
+            // Common outcome quadrant
+            const outcomes = {};
+            filtered.forEach(s => {
+                const q = getQuadrant(s.post.valence, s.post.arousal);
+                outcomes[q] = (outcomes[q] || 0) + 1;
+            });
+            const topOutcome = Object.entries(outcomes).sort((a, b) => b[1] - a[1])[0];
+            document.getElementById('commonOutcome').textContent = topOutcome ? `${topOutcome[0]} (${topOutcome[1]}/${filtered.length})` : '—';
+        }
+        
+        function getQuadrant(v, a) {
+            if (v >= 50 && a >= 50) return 'Excited/Happy';
+            if (v >= 50 && a < 50) return 'Calm/Relaxed';
+            if (v < 50 && a >= 50) return 'Stressed/Anxious';
+            return 'Sad/Depressed';
+        }
+        
+        function renderSessionList() {
+            const container = document.getElementById('sessionList');
+            const filtered = allSessions.filter(s => activeUsers.has(s.userId));
+            
+            container.innerHTML = filtered.map(s => {
+                const vDelta = s.post.valence - s.pre.valence;
+                const aDelta = s.post.arousal - s.pre.arousal;
+                const color = userColors[s.userId] || userColors.default;
+                
+                return `
+                    <div class="session-item">
+                        <div class="session-info">
+                            <div class="session-user" style="background: ${color}; color: #000;">${s.userId}</div>
+                            <div class="session-details">
+                                <h4>${s.protocol}</h4>
+                                <p>${s.date}</p>
+                            </div>
+                        </div>
+                        <div class="session-delta">
+                            <div class="delta-arrow">${vDelta >= 0 && aDelta <= 0 ? '↘️' : vDelta >= 0 ? '→' : aDelta <= 0 ? '↓' : '↗️'}</div>
+                            <div class="delta-values">V: ${vDelta >= 0 ? '+' : ''}${vDelta} / A: ${aDelta >= 0 ? '+' : ''}${aDelta}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function renderProtocolBreakdown() {
+            const container = document.getElementById('protocolBreakdown');
+            const filtered = allSessions.filter(s => activeUsers.has(s.userId));
+            
+            // Normalize protocol names
+            const protocols = {};
+            filtered.forEach(s => {
+                const name = s.protocol.toLowerCase();
+                if (!protocols[name]) {
+                    protocols[name] = { displayName: s.protocol, sessions: [], vSum: 0, aSum: 0 };
+                }
+                protocols[name].sessions.push(s);
+                protocols[name].vSum += (s.post.valence - s.pre.valence);
+                protocols[name].aSum += (s.post.arousal - s.pre.arousal);
+            });
+            
+            const maxShift = 50; // For scaling bars
+            
+            container.innerHTML = Object.values(protocols).map(p => {
+                const avgV = p.vSum / p.sessions.length;
+                const avgA = p.aSum / p.sessions.length;
+                const vWidth = Math.min(Math.abs(avgV) / maxShift * 50, 50);
+                const aWidth = Math.min(Math.abs(avgA) / maxShift * 50, 50);
+                
+                return `
+                    <div class="protocol-bar">
+                        <div class="protocol-header">
+                            <span class="protocol-name">${p.displayName}</span>
+                            <span class="protocol-count">${p.sessions.length} session${p.sessions.length > 1 ? 's' : ''}</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; align-items: center; font-size: 0.75rem; color: #666;">
+                            <span style="width: 50px;">Valence</span>
+                            <div style="flex: 1; display: flex; align-items: center;">
+                                <div style="width: 50%; display: flex; justify-content: flex-end;">
+                                    ${avgV < 0 ? `<div style="width: ${vWidth}%; height: 8px; background: #f87171; border-radius: 4px;"></div>` : ''}
+                                </div>
+                                <div style="width: 2px; height: 12px; background: #333; margin: 0 2px;"></div>
+                                <div style="width: 50%;">
+                                    ${avgV >= 0 ? `<div style="width: ${vWidth}%; height: 8px; background: #4ade80; border-radius: 4px;"></div>` : ''}
+                                </div>
+                            </div>
+                            <span style="width: 40px; text-align: right;">${avgV >= 0 ? '+' : ''}${avgV.toFixed(0)}</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; align-items: center; font-size: 0.75rem; color: #666; margin-top: 4px;">
+                            <span style="width: 50px;">Arousal</span>
+                            <div style="flex: 1; display: flex; align-items: center;">
+                                <div style="width: 50%; display: flex; justify-content: flex-end;">
+                                    ${avgA < 0 ? `<div style="width: ${aWidth}%; height: 8px; background: #4ade80; border-radius: 4px;"></div>` : ''}
+                                </div>
+                                <div style="width: 2px; height: 12px; background: #333; margin: 0 2px;"></div>
+                                <div style="width: 50%;">
+                                    ${avgA >= 0 ? `<div style="width: ${aWidth}%; height: 8px; background: #fbbf24; border-radius: 4px;"></div>` : ''}
+                                </div>
+                            </div>
+                            <span style="width: 40px; text-align: right;">${avgA >= 0 ? '+' : ''}${avgA.toFixed(0)}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Auto-fetch from published Google Sheet
+        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR2iR0DW_yQT7ykfO0RrhogKGCJGXb3U8uKDKg-H_aJR5iZ_EG7-UuANHK84uJXjhEgkiBKkd8Onxn_/pub?gid=2038593586&single=true&output=csv';
+        
+        let csvData = '';
+        
+        async function fetchSheetData() {
+            try {
+                const response = await fetch(SHEET_CSV_URL);
+                csvData = await response.text();
+                const data = parseCSV(csvData);
+                allSessions = pairSessions(data);
+                activeUsers = new Set(allSessions.map(s => s.userId));
+                renderAll();
+                
+                const now = new Date();
+                document.getElementById('lastUpdated').textContent = 
+                    `Updated ${now.toLocaleTimeString()}`;
+            } catch (error) {
+                console.error('Error fetching sheet:', error);
+                document.getElementById('lastUpdated').textContent = 'Error loading data';
+            }
+        }
+        
+        // Load on page open
+        window.onload = fetchSheetData;
+    </script>
+</body>
+</html>
