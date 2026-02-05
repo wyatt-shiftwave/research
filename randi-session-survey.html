@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Shiftwave Session Survey</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        /* Header with logo */
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        
+        .logo {
+            margin-bottom: 20px;
+        }
+        
+        .logo svg {
+            height: 70px;
+            width: auto;
+        }
+        
+        .header h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        
+        .header p {
+            color: #888;
+            font-size: 0.85rem;
+        }
+        
+        /* Setup fields */
+        .setup-section {
+            background: #151515;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .field-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .field-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .field {
+            flex: 1;
+        }
+        
+        .field label {
+            display: block;
+            font-size: 0.75rem;
+            color: #888;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .field input, .field select {
+            width: 100%;
+            padding: 12px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+        
+        .field input:focus, .field select:focus {
+            outline: none;
+            border-color: #555;
+        }
+        
+        .timing-toggle {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .timing-btn {
+            flex: 1;
+            padding: 12px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #888;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .timing-btn.active {
+            background: #fff;
+            color: #0a0a0a;
+            border-color: #fff;
+            font-weight: 600;
+        }
+        
+        /* Section styling */
+        .section {
+            background: #151515;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        
+        .section-title {
+            font-size: 0.7rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 16px;
+        }
+        
+        /* ========== EMOJIGRID - Matching refined original ========== */
+        .grid-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto 16px;
+        }
+        
+        .emojigrid-wrapper {
+            position: relative;
+            width: 100%;
+            padding-bottom: 100%;
+        }
+        
+        /* The clickable grid area - inset from wrapper */
+        .emojigrid {
+            position: absolute;
+            top: 44px;
+            left: 44px;
+            right: 44px;
+            bottom: 44px;
+            background: #0f0f0f;
+            border: 1px solid #444444;
+            cursor: crosshair;
+            touch-action: none;
+        }
+        
+        /* Grid lines */
+        .grid-line-h, .grid-line-v {
+            position: absolute;
+            background: transparent;
+            pointer-events: none;
+        }
+        
+        .grid-line-h {
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 0;
+            border-top: 1px dashed #444444;
+        }
+        
+        .grid-line-v {
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 0;
+            border-left: 1px dashed #444444;
+        }
+        
+        /* Click marker */
+        .marker {
+            position: absolute;
+            font-size: 28px;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            display: none;
+            z-index: 10;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+        }
+        
+        .marker.visible {
+            display: block;
+        }
+        
+        /* Emoji labels - positioned around grid perimeter */
+        .emoji-label {
+            position: absolute;
+            font-size: 24px;
+            line-height: 1;
+            z-index: 10;
+        }
+        
+        /* 
+         * Grid is inset 44px from wrapper edges.
+         * Emojis positioned 8px outside grid edge = 36px from wrapper edge.
+         * Row/column spans from 36px to (100% - 36px).
+         * 5 emojis per side = positions at 0%, 25%, 50%, 75%, 100% of that span.
+         */
+        
+        /* TOP ROW - all at top: 20px, horizontal positions span the row */
+        .emoji-t1 { left: 20px; top: 20px; transform: translate(-50%, -50%); }
+        .emoji-t2 { left: calc(20px + (100% - 40px) * 0.25); top: 20px; transform: translate(-50%, -50%); }
+        .emoji-t3 { left: 50%; top: 20px; transform: translate(-50%, -50%); }
+        .emoji-t4 { left: calc(20px + (100% - 40px) * 0.75); top: 20px; transform: translate(-50%, -50%); }
+        .emoji-t5 { left: calc(100% - 20px); top: 20px; transform: translate(-50%, -50%); }
+        
+        /* BOTTOM ROW - all at bottom: 20px */
+        .emoji-b1 { left: 20px; bottom: 20px; transform: translate(-50%, 50%); }
+        .emoji-b2 { left: calc(20px + (100% - 40px) * 0.25); bottom: 20px; transform: translate(-50%, 50%); }
+        .emoji-b3 { left: 50%; bottom: 20px; transform: translate(-50%, 50%); }
+        .emoji-b4 { left: calc(20px + (100% - 40px) * 0.75); bottom: 20px; transform: translate(-50%, 50%); }
+        .emoji-b5 { left: calc(100% - 20px); bottom: 20px; transform: translate(-50%, 50%); }
+        
+        /* LEFT COLUMN - all at left: 20px, vertical positions (excluding corners already placed) */
+        .emoji-l4 { left: 20px; top: calc(20px + (100% - 40px) * 0.25); transform: translate(-50%, -50%); }
+        .emoji-l3 { left: 20px; top: 50%; transform: translate(-50%, -50%); }
+        .emoji-l2 { left: 20px; top: calc(20px + (100% - 40px) * 0.75); transform: translate(-50%, -50%); }
+        
+        /* RIGHT COLUMN - all at right: 20px */
+        .emoji-r4 { left: calc(100% - 20px); top: calc(20px + (100% - 40px) * 0.25); transform: translate(-50%, -50%); }
+        .emoji-r3 { left: calc(100% - 20px); top: 50%; transform: translate(-50%, -50%); }
+        .emoji-r2 { left: calc(100% - 20px); top: calc(20px + (100% - 40px) * 0.75); transform: translate(-50%, -50%); }
+        
+        /* Center neutral - inside grid */
+        .emoji-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 22px;
+            z-index: 5;
+            background: #0f0f0f;
+            padding: 2px;
+            border-radius: 50%;
+        }
+        
+        /* Word labels - outside the emoji ring */
+        .word-label {
+            position: absolute;
+            font-size: 0.6rem;
+            color: #666666;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+        }
+        
+        .word-tl { left: 20px; top: -6px; transform: translateX(-50%); }
+        .word-tc { left: 50%; top: -6px; transform: translateX(-50%); }
+        .word-tr { right: 20px; top: -6px; transform: translateX(50%); }
+        .word-ml { left: -24px; top: 50%; transform: translateY(-50%) rotate(-90deg); transform-origin: center center; }
+        .word-mr { right: -24px; top: 50%; transform: translateY(-50%) rotate(90deg); transform-origin: center center; }
+        .word-bl { left: 20px; bottom: -6px; transform: translateX(-50%); }
+        .word-bc { left: 50%; bottom: -6px; transform: translateX(-50%); }
+        .word-br { right: 20px; bottom: -6px; transform: translateX(50%); }
+        
+        .grid-values {
+            text-align: center;
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .grid-values span {
+            color: #aaa;
+            font-weight: 500;
+        }
+        
+        /* ========== VAS SLIDERS ========== */
+        .vas-item {
+            margin-bottom: 24px;
+        }
+        
+        .vas-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .vas-question {
+            font-size: 0.9rem;
+            color: #ccc;
+            margin-bottom: 12px;
+        }
+        
+        .vas-slider-container {
+            position: relative;
+            padding: 0 8px;
+        }
+        
+        .vas-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.7rem;
+            color: #666;
+        }
+        
+        .vas-slider {
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #333;
+            border-radius: 4px;
+            outline: none;
+        }
+        
+        .vas-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: #fff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        
+        .vas-slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            background: #fff;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        
+        .vas-value {
+            text-align: center;
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: #888;
+        }
+        
+        /* ========== PAIN SCALE (NRS) ========== */
+        .nrs-container {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .nrs-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            color: #888;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .nrs-btn:hover {
+            border-color: #555;
+        }
+        
+        .nrs-btn.selected {
+            background: #ef4444;
+            border-color: #ef4444;
+            color: #fff;
+            font-weight: 600;
+        }
+        
+        .nrs-btn.selected.low {
+            background: #22c55e;
+            border-color: #22c55e;
+        }
+        
+        .nrs-btn.selected.medium {
+            background: #f59e0b;
+            border-color: #f59e0b;
+        }
+        
+        .nrs-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 0.65rem;
+            color: #555;
+        }
+        
+        /* ========== STAI-6 LIKERT ========== */
+        .likert-item {
+            margin-bottom: 20px;
+        }
+        
+        .likert-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .likert-question {
+            font-size: 0.9rem;
+            color: #ccc;
+            margin-bottom: 10px;
+        }
+        
+        .likert-options {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .likert-btn {
+            flex: 1;
+            padding: 10px 4px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #888;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-align: center;
+        }
+        
+        .likert-btn:hover {
+            border-color: #555;
+        }
+        
+        .likert-btn.selected {
+            background: #4ade80;
+            border-color: #4ade80;
+            color: #000;
+            font-weight: 600;
+        }
+        
+        /* Comment field */
+        .comment-field textarea {
+            width: 100%;
+            padding: 12px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 0.9rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .comment-field textarea:focus {
+            outline: none;
+            border-color: #555;
+        }
+        
+        .comment-field textarea::placeholder {
+            color: #555;
+        }
+        
+        /* Submit */
+        .submit-section {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px 20px;
+            background: linear-gradient(transparent, #0a0a0a 30%);
+        }
+        
+        .submit-btn {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            display: block;
+            padding: 16px;
+            background: #fff;
+            border: none;
+            border-radius: 12px;
+            color: #0a0a0a;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .submit-btn:hover {
+            background: #e0e0e0;
+        }
+        
+        .submit-btn:disabled {
+            background: #333;
+            color: #666;
+            cursor: not-allowed;
+        }
+        
+        /* Progress indicator */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: #4ade80;
+            transition: width 0.3s;
+            z-index: 100;
+        }
+        
+        /* Success state */
+        .success-message {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .success-message .checkmark {
+            font-size: 4rem;
+            margin-bottom: 16px;
+        }
+        
+        .success-message h2 {
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+        }
+        
+        .success-message p {
+            color: #888;
+        }
+        
+        .reset-btn {
+            margin-top: 24px;
+            padding: 12px 32px;
+            background: #333;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        /* Hidden */
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+    
+    <div class="container" id="surveyContainer">
+        <!-- Header with Logo -->
+        <div class="header">
+            <div class="logo">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 688">
+                    <defs><style>.sw-stroke{fill:none;stroke:#fff;stroke-miterlimit:10;stroke-width:8px;}.sw-fill{fill:#fff;}</style></defs>
+                    <g id="SHIFTWAVE-text">
+                        <path class="sw-fill" d="M164.4164,576.6915c-27.538-3.741-45.5885-7.5763-45.5885-26.0745,0-5.3407,2.0083-10.3028,5.6576-13.9806l1.7672-1.5705c3.5038-2.7458,7.6905-4.1967,12.1125-4.1967h48.0884c4.4299,0,8.6585,1.4915,11.949,4.2332l1.9778,1.5825c3.6194,3.6739,5.6111,8.6153,5.6111,13.9321,0,3.0055,2.5398,5.4503,5.6609,5.4503,2.955,0,5.451-2.496,5.451-5.4503v-.2106c0-8.0559-3.2759-15.9517-8.9873-21.6625l-.7115-.7082c-5.8024-5.3387-13.2425-8.2785-20.951-8.2785h-48.0884c-7.7085,0-15.1485,2.9398-21.032,8.3556l-.6683.669c-5.8549,6.0881-8.9495,13.6385-8.9495,21.8352,0,27.1109,27.3527,32.8489,53.0491,36.0696,3.5045.8404,7.5969,1.3812,11.9258,1.9532,19.4628,2.5724,34.351,5.9214,34.351,23.2942,0,10.8887-8.7648,19.7479-19.5379,19.7479h-50.6083c-5.1687,0-10.0231-1.9804-13.6916-5.5812l-.5109-.6803-.1535-.1867c-3.3895-3.7662-5.1813-8.3655-5.1813-13.2997,0-3.0055-2.5398-5.4503-5.6616-5.4503-2.9544,0-5.4503,2.496-5.4503,5.4503l.0013,1.1354c.2272,7.2786,3.2135,14.4609,8.1981,19.7339l.5341.7128.2531.291c5.7108,5.7114,13.6066,8.9873,21.6625,8.9873h50.6083c16.9004,0,30.6499-13.8438,30.6499-30.8605,0-27.9426-28.5485-31.8205-53.7367-35.2425Z"/>
+                        <path class="sw-fill" d="M332.053,519.9665c-2.955,0-5.4517,2.4966-5.4517,5.4517v50.4025h-82.3331v-50.4025c0-3.0062-2.5398-5.4517-5.6616-5.4517-2.955,0-5.451,2.4966-5.451,5.4517v111.9247c0,2.955,2.496,5.4517,5.451,5.4517,3.1218,0,5.6616-2.4455,5.6616-5.4517v-50.4108h82.3331v50.4108c0,2.955,2.4966,5.4517,5.4517,5.4517s5.451-2.4966,5.451-5.4517v-111.9247c0-2.955-2.496-5.4517-5.451-5.4517Z"/>
+                        <path class="sw-fill" d="M362.0843,519.9665c-2.955,0-5.451,2.4966-5.451,5.4517v111.9247c0,2.955,2.496,5.4517,5.451,5.4517,3.1218,0,5.6616-2.4455,5.6616-5.4517v-111.9247c0-3.0062-2.5398-5.4517-5.6616-5.4517Z"/>
+                        <path class="sw-fill" d="M437.5254,531.0791h20.7889c3.0062,0,5.4517-2.5398,5.4517-5.6609,0-2.955-2.4966-5.4517-5.4517-5.4517h-20.7889c-28.2682,0-51.6261,23.0563-52.0686,51.3969l-.0007,65.9794c0,2.955,2.496,5.4517,5.451,5.4517,3.1218,0,5.6616-2.4455,5.6616-5.4517v-43.8171h61.7455c2.955,0,5.4517-2.496,5.4517-5.4503,0-3.1211-2.4455-5.6609-5.4517-5.6609h-61.7455v-10.3787c0-22.5833,18.3733-40.9566,40.9566-40.9566Z"/>
+                        <path class="sw-fill" d="M580.0581,519.9665h-96.806c-2.955,0-5.451,2.4966-5.451,5.4517,0,3.1211,2.4455,5.6609,5.451,5.6609h42.8474v106.2637c0,3.0062,2.5392,5.4517,5.6609,5.4517,2.955,0,5.451-2.4966,5.451-5.4517v-106.2637h42.8467c3.0062,0,5.4517-2.5398,5.4517-5.6609,0-2.955-2.4966-5.4517-5.4517-5.4517Z"/>
+                    </g>
+                    <g id="W-wave">
+                        <path class="sw-stroke" d="M1163.4892,144.6855c-9.3222-10.513-22.3257-18.9693-36.525-12.6674-15.2154,6.7529-25.3267,23.7757-33.3085,37.423-12.8021,21.889-23.0286,45.2437-33.2831,68.3768-11.8984,26.8417-23.5129,53.8206-36.4487,80.1941-12.3878,25.2561-25.8794,50.2816-42.8054,72.8748-13.8838,18.5324-30.704,36.3799-52.1047,46.3035-23.7793,11.0267-49.3263,9.0799-71.4452-4.9481-30.6419-19.4333-52.5573-51.4341-73.337-80.2754-21.0418-29.205-41.1527-61.3724-69.0154-84.805-10.2933-8.6567-22.4069-16.3034-36.0682-17.9842-23.6379-2.9083-44.9678,10.3273-60.8169,26.4353-9.7018,9.8603-18.0477,20.9841-25.884,32.3309"/>
+                        <line class="sw-stroke" x1="592.4524" y1="307.9489" x2="590.9548" y2="305.8363"/>
+                        <path class="sw-stroke" d="M1147.3359,120.5344c-240.5221-298.7124-225.1637,323.7681-416.5093,324.1044-46.7869.0822-97.6942-78.9087-138.3741-136.6895"/>
+                        <path class="sw-stroke" d="M26.6434,139.0648c21.198-18.8132,46.8345-5.5677,60.8258,14.2922,16.5526,23.4955,29.966,48.1608,41.8047,74.2699,21.2634,46.8944,38.7854,95.9256,66.9793,139.3797,14.0498,21.6544,30.784,41.6109,50.6757,58.2326,11.1791,9.3414,22.1463,17.4875,37.1007,19.1881,14.9079,1.6953,29.7492-2.3809,42.7432-9.2129,29.0918-15.2959,46.7458-41.3214,65.6494-67.1623,19.5549-26.7312,37.1926-54.9361,57.1335-81.3624,14.9822-19.8549,38.1376-37.0163,63.9842-37.8672,28.1589-.9271,51.8674,21.0922,68.1045,41.7369,4.3422,5.5209,8.3208,11.3169,12.0248,17.2759"/>
+                        <path class="sw-stroke" d="M26.5763,139.6068c27.9081-36.7802,60.3406-73.0841,107.016-36.4351,19.9609,15.6731,31.5719,38.7145,42.2836,61.0428,13.5072,28.1555,71.174,143.0793,86.152,173.8456,13.5364,27.8051,30.4243,57.3253,53.2228,78.7375,18.9516,17.7993,44.4958,31.8466,71.3917,26.9128,29.4438-5.4011,49.4339-30.0325,66.1928-52.5068,19.229-25.7866,36.8409-52.7093,55.926-78.5975,17.5294-23.7779,36.6763-53.15,65.55-64.1489,6.3524-2.4198,18.7196-3.1262,18.7196-3.1262,33.7659.7229,54.5888,31.7001,75.4118,54.933,36.4401,46.4658,62.4688,98.0945,109.3204,134.2345,83.2918,38.7215,140.5548-59.373,166.5835-121.3274,20.8229-46.4658,75.4832-170.3746,83.2918-185.8632,13.0143-23.2329,31.2344-46.4658,57.2631-43.8844,36.4401,0,59.8659,30.9772,79.3378,61.3092"/>
+                        <path class="sw-stroke" d="M33.3758,131.7873c240.5207-298.7124,228.9187,312.9335,428.8671,312.8163,51.0953-.0289,90.7419-78.9817,131.4219-136.7641"/>
+                    </g>
+                </svg>
+            </div>
+            <h1>Session Check-In</h1>
+            <p>~60 seconds • All responses confidential</p>
+        </div>
+        
+        <!-- Setup -->
+        <div class="setup-section">
+            <div class="field-row">
+                <div class="field">
+                    <label>Your Initials</label>
+                    <input type="text" id="userId" placeholder="e.g., WR" maxlength="4" autocomplete="off">
+                </div>
+                <div class="field">
+                    <label>Protocol</label>
+                    <input type="text" id="protocol" placeholder="e.g., Deep Rest" autocomplete="off">
+                </div>
+            </div>
+            <div class="field">
+                <label>Timing</label>
+                <div class="timing-toggle">
+                    <button type="button" class="timing-btn active" data-timing="pre" onclick="setTiming('pre')">Pre-Session</button>
+                    <button type="button" class="timing-btn" data-timing="post" onclick="setTiming('post')">Post-Session</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Section 1: EmojiGrid -->
+        <div class="section">
+            <div class="section-title">Tap the point that matches how you feel right now</div>
+            
+            <div class="grid-container">
+                <div class="emojigrid-wrapper">
+                    <!-- Word labels at edges -->
+                    <span class="word-label word-tl">Stressed</span>
+                    <span class="word-label word-tc">Alert</span>
+                    <span class="word-label word-tr">Excited</span>
+                    <span class="word-label word-ml">Unhappy</span>
+                    <span class="word-label word-mr">Content</span>
+                    <span class="word-label word-bl">Sad</span>
+                    <span class="word-label word-bc">Tired</span>
+                    <span class="word-label word-br">Relaxed</span>
+                    
+                    <!-- BOTTOM ROW (Low Arousal): Sad → Tired → Relaxed -->
+                    <span class="emoji-label emoji-b1">😢</span>
+                    <span class="emoji-label emoji-b2">😞</span>
+                    <span class="emoji-label emoji-b3">😴</span>
+                    <span class="emoji-label emoji-b4">😌</span>
+                    <span class="emoji-label emoji-b5">😊</span>
+                    
+                    <!-- TOP ROW (High Arousal): Stressed → Alert → Excited -->
+                    <span class="emoji-label emoji-t1">😤</span>
+                    <span class="emoji-label emoji-t2">😠</span>
+                    <span class="emoji-label emoji-t3">😮</span>
+                    <span class="emoji-label emoji-t4">😃</span>
+                    <span class="emoji-label emoji-t5">🤩</span>
+                    
+                    <!-- LEFT COLUMN (Unpleasant): varying arousal -->
+                    <span class="emoji-label emoji-l2">😔</span>
+                    <span class="emoji-label emoji-l3">😟</span>
+                    <span class="emoji-label emoji-l4">😰</span>
+                    
+                    <!-- RIGHT COLUMN (Pleasant): varying arousal -->
+                    <span class="emoji-label emoji-r2">🙂</span>
+                    <span class="emoji-label emoji-r3">😀</span>
+                    <span class="emoji-label emoji-r4">😄</span>
+                    
+                    <!-- Clickable grid -->
+                    <div class="emojigrid" id="emojiGrid">
+                        <div class="grid-line-h"></div>
+                        <div class="grid-line-v"></div>
+                        <span class="emoji-center">😐</span>
+                        <span class="marker" id="marker">😐</span>
+                    </div>
+                </div>
+            </div>
+            <div class="grid-values" id="gridValues">Tap inside the grid</div>
+        </div>
+        
+        <!-- Section 2: Body & Energy -->
+        <div class="section">
+            <div class="section-title">Body & Energy</div>
+            
+            <div class="vas-item">
+                <div class="vas-question">How does your body feel right now?</div>
+                <div class="vas-slider-container">
+                    <div class="vas-labels">
+                        <span>Tense</span>
+                        <span>Relaxed</span>
+                    </div>
+                    <input type="range" class="vas-slider" id="bodyTension" min="0" max="100" value="50">
+                    <div class="vas-value"><span id="bodyTensionValue">50</span></div>
+                </div>
+            </div>
+            
+            <div class="vas-item">
+                <div class="vas-question">How is your energy level right now?</div>
+                <div class="vas-slider-container">
+                    <div class="vas-labels">
+                        <span>Drained</span>
+                        <span>Alive & Energized</span>
+                    </div>
+                    <input type="range" class="vas-slider" id="energy" min="0" max="100" value="50">
+                    <div class="vas-value"><span id="energyValue">50</span></div>
+                </div>
+            </div>
+            
+            <div class="vas-item">
+                <div class="vas-question">How connected do you feel to your body right now?</div>
+                <div class="vas-slider-container">
+                    <div class="vas-labels">
+                        <span>Disconnected</span>
+                        <span>Connected</span>
+                    </div>
+                    <input type="range" class="vas-slider" id="bodyConnection" min="0" max="100" value="50">
+                    <div class="vas-value"><span id="bodyConnectionValue">50</span></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Section 3: Mind -->
+        <div class="section">
+            <div class="section-title">Mind</div>
+            
+            <div class="vas-item">
+                <div class="vas-question">How does your mind feel right now?</div>
+                <div class="vas-slider-container">
+                    <div class="vas-labels">
+                        <span>Foggy</span>
+                        <span>Clear</span>
+                    </div>
+                    <input type="range" class="vas-slider" id="clarity" min="0" max="100" value="50">
+                    <div class="vas-value"><span id="clarityValue">50</span></div>
+                </div>
+            </div>
+            
+            <div class="vas-item">
+                <div class="vas-question">How busy is your mind right now?</div>
+                <div class="vas-slider-container">
+                    <div class="vas-labels">
+                        <span>Busy Mind</span>
+                        <span>Mentally Still</span>
+                    </div>
+                    <input type="range" class="vas-slider" id="mentalQuiet" min="0" max="100" value="50">
+                    <div class="vas-value"><span id="mentalQuietValue">50</span></div>
+                </div>
+            </div>
+            
+            <div class="vas-item">
+                <div class="vas-question">How awake do you feel right now?</div>
+                <div class="vas-slider-container">
+                    <div class="vas-labels">
+                        <span>Falling Asleep</span>
+                        <span>Wide Awake</span>
+                    </div>
+                    <input type="range" class="vas-slider" id="alertness" min="0" max="100" value="50">
+                    <div class="vas-value"><span id="alertnessValue">50</span></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Section 4: Pain -->
+        <div class="section">
+            <div class="section-title">Pain Level</div>
+            <div class="vas-question">Rate your current pain level</div>
+            <div class="nrs-container" id="painScale">
+                <button type="button" class="nrs-btn" data-value="0">0</button>
+                <button type="button" class="nrs-btn" data-value="1">1</button>
+                <button type="button" class="nrs-btn" data-value="2">2</button>
+                <button type="button" class="nrs-btn" data-value="3">3</button>
+                <button type="button" class="nrs-btn" data-value="4">4</button>
+                <button type="button" class="nrs-btn" data-value="5">5</button>
+                <button type="button" class="nrs-btn" data-value="6">6</button>
+                <button type="button" class="nrs-btn" data-value="7">7</button>
+                <button type="button" class="nrs-btn" data-value="8">8</button>
+                <button type="button" class="nrs-btn" data-value="9">9</button>
+                <button type="button" class="nrs-btn" data-value="10">10</button>
+            </div>
+            <div class="nrs-labels">
+                <span>No Pain</span>
+                <span>Worst Pain</span>
+            </div>
+        </div>
+        
+        <!-- Section 5: STAI-6 -->
+        <div class="section">
+            <div class="section-title">State Assessment (STAI-6)</div>
+            
+            <div class="likert-item" data-item="stai_calm">
+                <div class="likert-question">I feel calm</div>
+                <div class="likert-options">
+                    <button type="button" class="likert-btn" data-value="1">Not at all</button>
+                    <button type="button" class="likert-btn" data-value="2">Somewhat</button>
+                    <button type="button" class="likert-btn" data-value="3">Moderately</button>
+                    <button type="button" class="likert-btn" data-value="4">Very much</button>
+                </div>
+            </div>
+            
+            <div class="likert-item" data-item="stai_tense">
+                <div class="likert-question">I am tense</div>
+                <div class="likert-options">
+                    <button type="button" class="likert-btn" data-value="1">Not at all</button>
+                    <button type="button" class="likert-btn" data-value="2">Somewhat</button>
+                    <button type="button" class="likert-btn" data-value="3">Moderately</button>
+                    <button type="button" class="likert-btn" data-value="4">Very much</button>
+                </div>
+            </div>
+            
+            <div class="likert-item" data-item="stai_upset">
+                <div class="likert-question">I feel upset</div>
+                <div class="likert-options">
+                    <button type="button" class="likert-btn" data-value="1">Not at all</button>
+                    <button type="button" class="likert-btn" data-value="2">Somewhat</button>
+                    <button type="button" class="likert-btn" data-value="3">Moderately</button>
+                    <button type="button" class="likert-btn" data-value="4">Very much</button>
+                </div>
+            </div>
+            
+            <div class="likert-item" data-item="stai_relaxed">
+                <div class="likert-question">I am relaxed</div>
+                <div class="likert-options">
+                    <button type="button" class="likert-btn" data-value="1">Not at all</button>
+                    <button type="button" class="likert-btn" data-value="2">Somewhat</button>
+                    <button type="button" class="likert-btn" data-value="3">Moderately</button>
+                    <button type="button" class="likert-btn" data-value="4">Very much</button>
+                </div>
+            </div>
+            
+            <div class="likert-item" data-item="stai_content">
+                <div class="likert-question">I feel content</div>
+                <div class="likert-options">
+                    <button type="button" class="likert-btn" data-value="1">Not at all</button>
+                    <button type="button" class="likert-btn" data-value="2">Somewhat</button>
+                    <button type="button" class="likert-btn" data-value="3">Moderately</button>
+                    <button type="button" class="likert-btn" data-value="4">Very much</button>
+                </div>
+            </div>
+            
+            <div class="likert-item" data-item="stai_worried">
+                <div class="likert-question">I am worried</div>
+                <div class="likert-options">
+                    <button type="button" class="likert-btn" data-value="1">Not at all</button>
+                    <button type="button" class="likert-btn" data-value="2">Somewhat</button>
+                    <button type="button" class="likert-btn" data-value="3">Moderately</button>
+                    <button type="button" class="likert-btn" data-value="4">Very much</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Section 6: Comment -->
+        <div class="section">
+            <div class="section-title">Optional</div>
+            <div class="comment-field">
+                <textarea id="comment" placeholder="Anything notable about this session?"></textarea>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Success message -->
+    <div class="container hidden" id="successContainer">
+        <div class="success-message">
+            <div class="checkmark">✓</div>
+            <h2>Response Recorded</h2>
+            <p id="successDetails">Pre-session check-in complete</p>
+            <button class="reset-btn" onclick="resetForm()">Submit Another Response</button>
+        </div>
+    </div>
+    
+    <!-- Submit button -->
+    <div class="submit-section">
+        <button class="submit-btn" id="submitBtn" onclick="submitSurvey()">Submit Check-In</button>
+    </div>
+    
+    <script>
+        // ========== CONFIGURATION ==========
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyrVZk021RPCQw-pMDvTbz6CNKgy_kpwRgKIcdVpq1VYzylSPaCfdWtzeHRMyAhr665pw/exec';
+        
+        // ========== STATE ==========
+        let formData = {
+            valence: null,
+            arousal: null,
+            bodyTension: 50,
+            energy: 50,
+            bodyConnection: 50,
+            clarity: 50,
+            mentalQuiet: 50,
+            alertness: 50,
+            pain: null,
+            stai_calm: null,
+            stai_tense: null,
+            stai_upset: null,
+            stai_relaxed: null,
+            stai_content: null,
+            stai_worried: null
+        };
+        
+        let timing = 'pre';
+        
+        // ========== EMOJI GRID ==========
+        const grid = document.getElementById('emojiGrid');
+        const marker = document.getElementById('marker');
+        const gridValues = document.getElementById('gridValues');
+        
+        // Emoji mapping based on position (5x5 grid)
+        const emojiMap = [
+            { vMin: 0, vMax: 20, aMin: 80, aMax: 100, emoji: '😤' },
+            { vMin: 20, vMax: 40, aMin: 80, aMax: 100, emoji: '😠' },
+            { vMin: 40, vMax: 60, aMin: 80, aMax: 100, emoji: '😮' },
+            { vMin: 60, vMax: 80, aMin: 80, aMax: 100, emoji: '😃' },
+            { vMin: 80, vMax: 100, aMin: 80, aMax: 100, emoji: '🤩' },
+            { vMin: 0, vMax: 20, aMin: 60, aMax: 80, emoji: '😰' },
+            { vMin: 20, vMax: 40, aMin: 60, aMax: 80, emoji: '😟' },
+            { vMin: 40, vMax: 60, aMin: 60, aMax: 80, emoji: '😐' },
+            { vMin: 60, vMax: 80, aMin: 60, aMax: 80, emoji: '🙂' },
+            { vMin: 80, vMax: 100, aMin: 60, aMax: 80, emoji: '😄' },
+            { vMin: 0, vMax: 20, aMin: 40, aMax: 60, emoji: '😟' },
+            { vMin: 20, vMax: 40, aMin: 40, aMax: 60, emoji: '😐' },
+            { vMin: 40, vMax: 60, aMin: 40, aMax: 60, emoji: '😐' },
+            { vMin: 60, vMax: 80, aMin: 40, aMax: 60, emoji: '🙂' },
+            { vMin: 80, vMax: 100, aMin: 40, aMax: 60, emoji: '😀' },
+            { vMin: 0, vMax: 20, aMin: 20, aMax: 40, emoji: '😔' },
+            { vMin: 20, vMax: 40, aMin: 20, aMax: 40, emoji: '😞' },
+            { vMin: 40, vMax: 60, aMin: 20, aMax: 40, emoji: '😐' },
+            { vMin: 60, vMax: 80, aMin: 20, aMax: 40, emoji: '🙂' },
+            { vMin: 80, vMax: 100, aMin: 20, aMax: 40, emoji: '😊' },
+            { vMin: 0, vMax: 20, aMin: 0, aMax: 20, emoji: '😢' },
+            { vMin: 20, vMax: 40, aMin: 0, aMax: 20, emoji: '😞' },
+            { vMin: 40, vMax: 60, aMin: 0, aMax: 20, emoji: '😴' },
+            { vMin: 60, vMax: 80, aMin: 0, aMax: 20, emoji: '😌' },
+            { vMin: 80, vMax: 100, aMin: 0, aMax: 20, emoji: '😊' },
+        ];
+        
+        function getEmojiForPosition(v, a) {
+            for (const zone of emojiMap) {
+                if (v >= zone.vMin && v < zone.vMax && a >= zone.aMin && a < zone.aMax) {
+                    return zone.emoji;
+                }
+            }
+            // Edge cases
+            if (v >= 100) v = 99;
+            if (a >= 100) a = 99;
+            return '😐';
+        }
+        
+        function handleGridInteraction(e) {
+            e.preventDefault();
+            const rect = grid.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            let x = ((clientX - rect.left) / rect.width) * 100;
+            let y = 100 - ((clientY - rect.top) / rect.height) * 100;
+            
+            x = Math.max(0, Math.min(100, x));
+            y = Math.max(0, Math.min(100, y));
+            
+            formData.valence = Math.round(x);
+            formData.arousal = Math.round(y);
+            
+            marker.style.left = x + '%';
+            marker.style.top = (100 - y) + '%';
+            marker.textContent = getEmojiForPosition(x, y);
+            marker.classList.add('visible');
+            
+            gridValues.innerHTML = `Valence: <span>${formData.valence}</span> &nbsp;|&nbsp; Arousal: <span>${formData.arousal}</span>`;
+            
+            updateProgress();
+        }
+        
+        grid.addEventListener('mousedown', handleGridInteraction);
+        grid.addEventListener('mousemove', (e) => { if (e.buttons === 1) handleGridInteraction(e); });
+        grid.addEventListener('touchstart', handleGridInteraction);
+        grid.addEventListener('touchmove', handleGridInteraction);
+        
+        // ========== VAS SLIDERS ==========
+        const sliders = ['bodyTension', 'energy', 'bodyConnection', 'clarity', 'mentalQuiet', 'alertness'];
+        
+        sliders.forEach(id => {
+            const slider = document.getElementById(id);
+            const valueDisplay = document.getElementById(id + 'Value');
+            
+            slider.addEventListener('input', () => {
+                formData[id] = parseInt(slider.value);
+                valueDisplay.textContent = slider.value;
+                updateProgress();
+            });
+        });
+        
+        // ========== PAIN SCALE ==========
+        document.querySelectorAll('#painScale .nrs-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#painScale .nrs-btn').forEach(b => b.classList.remove('selected', 'low', 'medium'));
+                btn.classList.add('selected');
+                
+                const value = parseInt(btn.dataset.value);
+                formData.pain = value;
+                
+                if (value <= 3) btn.classList.add('low');
+                else if (value <= 6) btn.classList.add('medium');
+                
+                updateProgress();
+            });
+        });
+        
+        // ========== STAI-6 LIKERT ==========
+        document.querySelectorAll('.likert-item').forEach(item => {
+            const itemName = item.dataset.item;
+            item.querySelectorAll('.likert-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    item.querySelectorAll('.likert-btn').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    formData[itemName] = parseInt(btn.dataset.value);
+                    updateProgress();
+                });
+            });
+        });
+        
+        // ========== TIMING TOGGLE ==========
+        function setTiming(value) {
+            timing = value;
+            document.querySelectorAll('.timing-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.timing === value);
+            });
+        }
+        
+        // ========== PROGRESS ==========
+        function updateProgress() {
+            const required = ['valence', 'arousal', 'pain', 'stai_calm', 'stai_tense', 'stai_upset', 'stai_relaxed', 'stai_content', 'stai_worried'];
+            const filled = required.filter(key => formData[key] !== null).length;
+            const percentage = (filled / required.length) * 100;
+            document.getElementById('progressBar').style.width = percentage + '%';
+        }
+        
+        // ========== STAI-6 SCORING ==========
+        function calculateSTAI6Score() {
+            const calm_r = 5 - formData.stai_calm;
+            const relaxed_r = 5 - formData.stai_relaxed;
+            const content_r = 5 - formData.stai_content;
+            const sum = calm_r + formData.stai_tense + formData.stai_upset + relaxed_r + content_r + formData.stai_worried;
+            const stai20equivalent = (sum * 20) / 6;
+            return { sum: sum, stai20: Math.round(stai20equivalent * 10) / 10 };
+        }
+        
+        // ========== SUBMIT ==========
+        async function submitSurvey() {
+            const userId = document.getElementById('userId').value.trim().toUpperCase();
+            const protocol = document.getElementById('protocol').value.trim();
+            const comment = document.getElementById('comment').value.trim();
+            
+            if (!userId) { alert('Please enter your initials'); return; }
+            if (!protocol) { alert('Please enter the protocol name'); return; }
+            if (formData.valence === null) { alert('Please tap the emoji grid'); return; }
+            if (formData.pain === null) { alert('Please select your pain level'); return; }
+            
+            const staiItems = ['stai_calm', 'stai_tense', 'stai_upset', 'stai_relaxed', 'stai_content', 'stai_worried'];
+            if (staiItems.some(item => formData[item] === null)) {
+                alert('Please complete all STAI-6 items');
+                return;
+            }
+            
+            const staiScore = calculateSTAI6Score();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+            
+            const payload = {
+                timestamp: new Date().toISOString(),
+                userId: userId,
+                protocol: protocol,
+                timing: timing,
+                valence: formData.valence,
+                arousal: formData.arousal,
+                bodyTension: formData.bodyTension,
+                energy: formData.energy,
+                bodyConnection: formData.bodyConnection,
+                clarity: formData.clarity,
+                mentalQuiet: formData.mentalQuiet,
+                alertness: formData.alertness,
+                pain: formData.pain,
+                stai_calm: formData.stai_calm,
+                stai_tense: formData.stai_tense,
+                stai_upset: formData.stai_upset,
+                stai_relaxed: formData.stai_relaxed,
+                stai_content: formData.stai_content,
+                stai_worried: formData.stai_worried,
+                stai6_sum: staiScore.sum,
+                stai20_equivalent: staiScore.stai20,
+                comment: comment
+            };
+            
+            try {
+                await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                document.getElementById('surveyContainer').classList.add('hidden');
+                document.getElementById('successContainer').classList.remove('hidden');
+                document.getElementById('successDetails').textContent = 
+                    `${timing === 'pre' ? 'Pre' : 'Post'}-session check-in recorded for ${userId}`;
+                document.querySelector('.submit-section').classList.add('hidden');
+                
+            } catch (error) {
+                console.error('Submit error:', error);
+                alert('Error submitting. Please try again.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Check-In';
+            }
+        }
+        
+        // ========== RESET ==========
+        function resetForm() {
+            formData = {
+                valence: null, arousal: null,
+                bodyTension: 50, energy: 50, bodyConnection: 50,
+                clarity: 50, mentalQuiet: 50, alertness: 50,
+                pain: null,
+                stai_calm: null, stai_tense: null, stai_upset: null,
+                stai_relaxed: null, stai_content: null, stai_worried: null
+            };
+            
+            marker.classList.remove('visible');
+            gridValues.innerHTML = 'Tap inside the grid';
+            
+            sliders.forEach(id => {
+                document.getElementById(id).value = 50;
+                document.getElementById(id + 'Value').textContent = '50';
+            });
+            
+            document.querySelectorAll('.nrs-btn').forEach(b => b.classList.remove('selected', 'low', 'medium'));
+            document.querySelectorAll('.likert-btn').forEach(b => b.classList.remove('selected'));
+            
+            document.getElementById('comment').value = '';
+            document.getElementById('progressBar').style.width = '0%';
+            
+            setTiming(timing === 'pre' ? 'post' : 'pre');
+            
+            document.getElementById('surveyContainer').classList.remove('hidden');
+            document.getElementById('successContainer').classList.add('hidden');
+            document.querySelector('.submit-section').classList.remove('hidden');
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Check-In';
+            
+            window.scrollTo(0, 0);
+        }
+        
+        updateProgress();
+    </script>
+</body>
+</html>
