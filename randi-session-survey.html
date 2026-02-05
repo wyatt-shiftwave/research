@@ -145,6 +145,23 @@
             margin-bottom: 16px;
         }
         
+        /* Global state-focus instruction */
+        .state-instruction {
+            text-align: center;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border: 1px solid #2a2a4a;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            color: #ccc;
+            line-height: 1.5;
+        }
+        
+        .state-instruction strong {
+            color: #fff;
+        }
+        
         /* ========== EMOJIGRID - Matching refined original ========== */
         .grid-container {
             position: relative;
@@ -608,7 +625,117 @@
             </div>
         </div>
         
-        <!-- Section 1: EmojiGrid -->
+        <!-- Global State-Focus Instruction -->
+        <div class="state-instruction">
+            Answer each question based only on how you feel <strong>right now</strong>, in this moment.
+        </div>
+        
+        <!-- Section 1: Body Tension (Somatic) -->
+        <div class="section">
+            <div class="section-title">Body</div>
+            
+            <div class="vas-item">
+                <div class="vas-question">How does your body feel right now?</div>
+                <div class="vas-slider-container">
+                    <div class="vas-labels">
+                        <span>Tense</span>
+                        <span>Relaxed</span>
+                    </div>
+                    <input type="range" class="vas-slider" id="bodyTension" min="0" max="100" value="50">
+                    <div class="vas-value"><span id="bodyTensionValue">50</span></div>
+                </div>
+            </div>
+            
+            <div class="vas-item">
+                <div class="vas-question">How connected do you feel to your body right now?</div>
+                <div class="vas-slider-container">
+                    <div class="vas-labels">
+                        <span>Disconnected</span>
+                        <span>Connected</span>
+                    </div>
+                    <input type="range" class="vas-slider" id="bodyConnection" min="0" max="100" value="50">
+                    <div class="vas-value"><span id="bodyConnectionValue">50</span></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Section 2: Pain (NRS) -->
+        <div class="section">
+            <div class="section-title">Pain</div>
+            <div class="vas-question">Rate your pain level right now</div>
+            <div class="nrs-container" id="painScale">
+                <button type="button" class="nrs-btn" data-value="0">0</button>
+                <button type="button" class="nrs-btn" data-value="1">1</button>
+                <button type="button" class="nrs-btn" data-value="2">2</button>
+                <button type="button" class="nrs-btn" data-value="3">3</button>
+                <button type="button" class="nrs-btn" data-value="4">4</button>
+                <button type="button" class="nrs-btn" data-value="5">5</button>
+                <button type="button" class="nrs-btn" data-value="6">6</button>
+                <button type="button" class="nrs-btn" data-value="7">7</button>
+                <button type="button" class="nrs-btn" data-value="8">8</button>
+                <button type="button" class="nrs-btn" data-value="9">9</button>
+                <button type="button" class="nrs-btn" data-value="10">10</button>
+            </div>
+            <div class="nrs-labels">
+                <span>No Pain</span>
+                <span>Worst Pain</span>
+            </div>
+        </div>
+        
+        <!-- Section 3: Energy & Mind (Cognitive/Arousal) -->
+        <div class="section">
+            <div class="section-title">Energy & Mind</div>
+            
+            <div class="vas-item">
+                <div class="vas-question">How is your energy level right now?</div>
+                <div class="vas-slider-container">
+                    <div class="vas-labels">
+                        <span>Drained</span>
+                        <span>Alive & Energized</span>
+                    </div>
+                    <input type="range" class="vas-slider" id="energy" min="0" max="100" value="50">
+                    <div class="vas-value"><span id="energyValue">50</span></div>
+                </div>
+            </div>
+            
+            <div class="vas-item">
+                <div class="vas-question">How does your mind feel right now?</div>
+                <div class="vas-slider-container">
+                    <div class="vas-labels">
+                        <span>Foggy</span>
+                        <span>Clear</span>
+                    </div>
+                    <input type="range" class="vas-slider" id="clarity" min="0" max="100" value="50">
+                    <div class="vas-value"><span id="clarityValue">50</span></div>
+                </div>
+            </div>
+            
+            <div class="vas-item">
+                <div class="vas-question">How busy is your mind right now?</div>
+                <div class="vas-slider-container">
+                    <div class="vas-labels">
+                        <span>Busy Mind</span>
+                        <span>Mentally Still</span>
+                    </div>
+                    <input type="range" class="vas-slider" id="mentalQuiet" min="0" max="100" value="50">
+                    <div class="vas-value"><span id="mentalQuietValue">50</span></div>
+                </div>
+            </div>
+            
+            <div class="vas-item">
+                <div class="vas-question">How awake do you feel right now?</div>
+                <div class="vas-slider-container">
+                    <div class="vas-labels">
+                        <span>Falling Asleep</span>
+                        <span>Wide Awake</span>
+                    </div>
+                    <input type="range" class="vas-slider" id="alertness" min="0" max="100" value="50">
+                    <div class="vas-value"><span id="alertnessValue">50</span></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Section 4: EmojiGrid (Affective) -->
         <div class="section">
             <div class="section-title">Tap the point that matches how you feel right now</div>
             
@@ -660,112 +787,7 @@
             <div class="grid-values" id="gridValues">Tap inside the grid</div>
         </div>
         
-        <!-- Section 2: Body & Energy -->
-        <div class="section">
-            <div class="section-title">Body & Energy</div>
-            
-            <div class="vas-item">
-                <div class="vas-question">How does your body feel right now?</div>
-                <div class="vas-slider-container">
-                    <div class="vas-labels">
-                        <span>Tense</span>
-                        <span>Relaxed</span>
-                    </div>
-                    <input type="range" class="vas-slider" id="bodyTension" min="0" max="100" value="50">
-                    <div class="vas-value"><span id="bodyTensionValue">50</span></div>
-                </div>
-            </div>
-            
-            <div class="vas-item">
-                <div class="vas-question">How is your energy level right now?</div>
-                <div class="vas-slider-container">
-                    <div class="vas-labels">
-                        <span>Drained</span>
-                        <span>Alive & Energized</span>
-                    </div>
-                    <input type="range" class="vas-slider" id="energy" min="0" max="100" value="50">
-                    <div class="vas-value"><span id="energyValue">50</span></div>
-                </div>
-            </div>
-            
-            <div class="vas-item">
-                <div class="vas-question">How connected do you feel to your body right now?</div>
-                <div class="vas-slider-container">
-                    <div class="vas-labels">
-                        <span>Disconnected</span>
-                        <span>Connected</span>
-                    </div>
-                    <input type="range" class="vas-slider" id="bodyConnection" min="0" max="100" value="50">
-                    <div class="vas-value"><span id="bodyConnectionValue">50</span></div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Section 3: Mind -->
-        <div class="section">
-            <div class="section-title">Mind</div>
-            
-            <div class="vas-item">
-                <div class="vas-question">How does your mind feel right now?</div>
-                <div class="vas-slider-container">
-                    <div class="vas-labels">
-                        <span>Foggy</span>
-                        <span>Clear</span>
-                    </div>
-                    <input type="range" class="vas-slider" id="clarity" min="0" max="100" value="50">
-                    <div class="vas-value"><span id="clarityValue">50</span></div>
-                </div>
-            </div>
-            
-            <div class="vas-item">
-                <div class="vas-question">How busy is your mind right now?</div>
-                <div class="vas-slider-container">
-                    <div class="vas-labels">
-                        <span>Busy Mind</span>
-                        <span>Mentally Still</span>
-                    </div>
-                    <input type="range" class="vas-slider" id="mentalQuiet" min="0" max="100" value="50">
-                    <div class="vas-value"><span id="mentalQuietValue">50</span></div>
-                </div>
-            </div>
-            
-            <div class="vas-item">
-                <div class="vas-question">How awake do you feel right now?</div>
-                <div class="vas-slider-container">
-                    <div class="vas-labels">
-                        <span>Falling Asleep</span>
-                        <span>Wide Awake</span>
-                    </div>
-                    <input type="range" class="vas-slider" id="alertness" min="0" max="100" value="50">
-                    <div class="vas-value"><span id="alertnessValue">50</span></div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Section 4: Pain -->
-        <div class="section">
-            <div class="section-title">Pain Level</div>
-            <div class="vas-question">Rate your current pain level</div>
-            <div class="nrs-container" id="painScale">
-                <button type="button" class="nrs-btn" data-value="0">0</button>
-                <button type="button" class="nrs-btn" data-value="1">1</button>
-                <button type="button" class="nrs-btn" data-value="2">2</button>
-                <button type="button" class="nrs-btn" data-value="3">3</button>
-                <button type="button" class="nrs-btn" data-value="4">4</button>
-                <button type="button" class="nrs-btn" data-value="5">5</button>
-                <button type="button" class="nrs-btn" data-value="6">6</button>
-                <button type="button" class="nrs-btn" data-value="7">7</button>
-                <button type="button" class="nrs-btn" data-value="8">8</button>
-                <button type="button" class="nrs-btn" data-value="9">9</button>
-                <button type="button" class="nrs-btn" data-value="10">10</button>
-            </div>
-            <div class="nrs-labels">
-                <span>No Pain</span>
-                <span>Worst Pain</span>
-            </div>
-        </div>
-        
-        <!-- Section 5: STAI-6 -->
+        <!-- Section 5: STAI-6 (Validated Instrument) -->
         <div class="section">
             <div class="section-title">State Assessment (STAI-6)</div>
             
@@ -830,7 +852,7 @@
             </div>
         </div>
         
-        <!-- Section 6: Comment -->
+        <!-- Section 6: Comment (Optional) -->
         <div class="section">
             <div class="section-title">Optional</div>
             <div class="comment-field">
@@ -856,7 +878,7 @@
     
     <script>
         // ========== CONFIGURATION ==========
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyrVZk021RPCQw-pMDvTbz6CNKgy_kpwRgKIcdVpq1VYzylSPaCfdWtzeHRMyAhr665pw/exec';
+        const GOOGLE_SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
         
         // ========== STATE ==========
         let formData = {
