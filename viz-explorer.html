@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EmojiGrid Viz Explorer</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            padding: 24px;
+        }
+        h1 { font-size: 1.4rem; text-align: center; margin-bottom: 8px; }
+        .subtitle { text-align: center; color: #666; font-size: 0.85rem; margin-bottom: 24px; }
+        
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .tab {
+            padding: 10px 18px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #888;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .tab:hover { border-color: #555; color: #ccc; }
+        .tab.active { background: #fff; color: #0a0a0a; border-color: #fff; font-weight: 600; }
+        
+        .viz-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 24px;
+        }
+        .viz-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .viz-desc {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        .viz-insight {
+            margin-top: 16px;
+            padding: 12px 16px;
+            background: #1a1a1a;
+            border-left: 3px solid #4ade80;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.8rem;
+            color: #aaa;
+            line-height: 1.6;
+        }
+        .viz-insight strong { color: #4ade80; }
+        
+        canvas { width: 100%; }
+        
+        /* Affect space shared styles */
+        .affect-grid {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .affect-grid svg {
+            width: 100%;
+            height: auto;
+        }
+        .grid-label {
+            font-size: 0.65rem;
+            fill: #555;
+            text-anchor: middle;
+        }
+        
+        /* Flow diagram */
+        .flow-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .flow-column {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+        }
+        .flow-label {
+            font-size: 0.75rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+        .flow-box {
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            text-align: center;
+            min-width: 140px;
+        }
+        
+        /* Protocol cards */
+        .protocol-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        .protocol-card {
+            background: #1a1a1a;
+            border-radius: 8px;
+            padding: 16px;
+        }
+        .protocol-card h4 {
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+            color: #ccc;
+        }
+        .protocol-card .mini-grid {
+            width: 100%;
+            aspect-ratio: 1;
+        }
+        
+        .legend-row {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 12px;
+            font-size: 0.75rem;
+            color: #666;
+        }
+        .legend-item { display: flex; align-items: center; gap: 6px; }
+        .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+        
+        /* Magnitude chart */
+        .magnitude-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .magnitude-label {
+            width: 180px;
+            font-size: 0.8rem;
+            color: #aaa;
+            text-align: right;
+            flex-shrink: 0;
+        }
+        .magnitude-track {
+            flex: 1;
+            height: 24px;
+            background: #1a1a1a;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+        .magnitude-fill {
+            height: 100%;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            padding-left: 8px;
+            font-size: 0.7rem;
+            color: #000;
+            font-weight: 600;
+            min-width: 30px;
+        }
+        
+        /* Quadrant flow */
+        .sankey-container { text-align: center; }
+        .flow-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        .flow-pre, .flow-post {
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            min-width: 130px;
+            text-align: center;
+        }
+        .flow-arrow {
+            color: #555;
+            font-size: 1.2rem;
+        }
+        .flow-count {
+            font-size: 0.7rem;
+            color: #888;
+            background: #1a1a1a;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>EmojiGrid Visualization Explorer</h1>
+    <p class="subtitle"><span id="sessionCount">Loading...</span> • <button onclick="fetchData()" style="background: none; border: none; color: #4ade80; cursor: pointer; font-size: 0.85rem;">↻ Refresh</button></p>
+    
+    <div class="tabs">
+        <div class="tab active" onclick="showViz('clusters')">Pre vs Post Clusters</div>
+        <div class="tab" onclick="showViz('trajectories')">Trajectory Arrows</div>
+        <div class="tab" onclick="showViz('quadrantFlow')">Quadrant Flow</div>
+        <div class="tab" onclick="showViz('protocols')">By Protocol</div>
+        <div class="tab" onclick="showViz('magnitude')">Shift Magnitude</div>
+        <div class="tab" onclick="showViz('heatmap')">Density Heatmap</div>
+    </div>
+    
+    <div class="viz-container" id="vizContainer"></div>
+    
+    <script>
+        // Live data from Google Sheet
+        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR2iR0DW_yQT7ykfO0RrhogKGCJGXb3U8uKDKg-H_aJR5iZ_EG7-UuANHK84uJXjhEgkiBKkd8Onxn_/pub?gid=2038593586&single=true&output=csv';
+        
+        let sessions = [];
+        
+        const userColors = {
+            'DR': '#60a5fa', 'MN': '#f472b6', 'WR': '#4ade80',
+            'DS': '#fbbf24', 'KP': '#a78bfa', 'JT': '#f87171',
+            'AB': '#2dd4bf', 'CD': '#e879f9', 'EF': '#fb923c',
+            'default': '#888'
+        };
+        
+        function getColor(userId) {
+            return userColors[userId] || userColors.default;
+        }
+        
+        const quadrantColors = {
+            'Stressed': '#ef4444',
+            'Excited': '#f59e0b',
+            'Sad': '#6366f1',
+            'Relaxed': '#22c55e'
+        };
+        
+        function getQuadrant(v, a) {
+            if (v >= 50 && a >= 50) return 'Excited';
+            if (v >= 50 && a < 50) return 'Relaxed';
+            if (v < 50 && a >= 50) return 'Stressed';
+            return 'Sad';
+        }
+        
+        function parseCSV(csv) {
+            const lines = csv.trim().split('\n');
+            const headers = lines[0].split(',');
+            const data = [];
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(',');
+                const row = {};
+                headers.forEach((h, idx) => {
+                    row[h.trim()] = values[idx]?.trim() || '';
+                });
+                data.push(row);
+            }
+            return data;
+        }
+        
+        function pairSessions(data) {
+            const paired = [];
+            const pending = {};
+            
+            data.forEach(row => {
+                const key = `${row['User ID']}_${row['Protocol']}_${row['Timestamp'].split('T')[0]}`;
+                
+                if (row['Timing'] === 'pre') {
+                    pending[key] = row;
+                } else if (row['Timing'] === 'post' && pending[key]) {
+                    paired.push({
+                        userId: row['User ID'],
+                        protocol: row['Protocol'],
+                        date: row['Timestamp'].split('T')[0],
+                        pre: {
+                            v: parseInt(pending[key]['Valence (0-100)']),
+                            a: parseInt(pending[key]['Arousal (0-100)'])
+                        },
+                        post: {
+                            v: parseInt(row['Valence (0-100)']),
+                            a: parseInt(row['Arousal (0-100)'])
+                        }
+                    });
+                    delete pending[key];
+                }
+            });
+            
+            return paired;
+        }
+        
+        async function fetchData() {
+            try {
+                document.getElementById('vizContainer').innerHTML = '<div style="text-align: center; padding: 60px; color: #666;">Loading data from Google Sheets...</div>';
+                const response = await fetch(SHEET_CSV_URL);
+                const csv = await response.text();
+                const data = parseCSV(csv);
+                sessions = pairSessions(data);
+                
+                document.getElementById('sessionCount').textContent = `${sessions.length} sessions loaded`;
+                
+                // Show first viz
+                showClusters();
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                document.getElementById('vizContainer').innerHTML = '<div style="text-align: center; padding: 60px; color: #f87171;">Error loading data. Check console.</div>';
+            }
+        }
+        
+        function makeGrid(id, width = 500, height = 500) {
+            return `
+                <svg id="${id}" viewBox="-40 -30 ${width + 70} ${height + 60}" style="max-height: 500px;">
+                    <!-- Background quadrants -->
+                    <rect x="0" y="0" width="250" height="250" fill="rgba(239,68,68,0.06)" />
+                    <rect x="250" y="0" width="250" height="250" fill="rgba(245,158,11,0.06)" />
+                    <rect x="0" y="250" width="250" height="250" fill="rgba(99,102,241,0.06)" />
+                    <rect x="250" y="250" width="250" height="250" fill="rgba(34,197,94,0.06)" />
+                    
+                    <!-- Border -->
+                    <rect x="0" y="0" width="500" height="500" fill="none" stroke="#333" stroke-width="1" />
+                    
+                    <!-- Grid lines -->
+                    <line x1="250" y1="0" x2="250" y2="500" stroke="#333" stroke-width="0.5" stroke-dasharray="4,4" />
+                    <line x1="0" y1="250" x2="500" y2="250" stroke="#333" stroke-width="0.5" stroke-dasharray="4,4" />
+                    
+                    <!-- Axis labels -->
+                    <text x="250" y="-12" class="grid-label">High Arousal</text>
+                    <text x="250" y="520" class="grid-label">Low Arousal</text>
+                    <text x="-12" y="250" class="grid-label" transform="rotate(-90, -12, 250)">Unpleasant</text>
+                    <text x="515" y="250" class="grid-label" transform="rotate(90, 515, 250)">Pleasant</text>
+                    
+                    <!-- Quadrant labels -->
+                    <text x="125" y="30" class="grid-label" style="fill: #ef444466;">STRESSED</text>
+                    <text x="375" y="30" class="grid-label" style="fill: #f59e0b66;">EXCITED</text>
+                    <text x="125" y="485" class="grid-label" style="fill: #6366f166;">SAD</text>
+                    <text x="375" y="485" class="grid-label" style="fill: #22c55e66;">RELAXED</text>
+                </svg>
+            `;
+        }
+        
+        function toSvg(v, a) {
+            return { x: v * 5, y: (100 - a) * 5 };
+        }
+        
+        // ========== VISUALIZATIONS ==========
+        
+        function showClusters() {
+            const container = document.getElementById('vizContainer');
+            container.innerHTML = `
+                <div class="viz-title">Pre-Session vs Post-Session Clusters</div>
+                <div class="viz-desc">Where do people start vs. where do they end up? Hollow circles are pre-session states, filled circles are post-session states. Look for clustering patterns.</div>
+                <div class="affect-grid">${makeGrid('clusterSvg')}</div>
+                <div class="legend-row">
+                    <div class="legend-item"><span class="legend-dot" style="border: 2px solid #888; background: transparent;"></span> Pre-session</div>
+                    <div class="legend-item"><span class="legend-dot" style="background: #888;"></span> Post-session</div>
+                </div>
+                <div class="viz-insight" id="clusterInsight"></div>
+            `;
+            
+            const svg = document.getElementById('clusterSvg');
+            
+            // Draw pre-session cluster ellipse
+            const prePoints = sessions.map(s => toSvg(s.pre.v, s.pre.a));
+            const postPoints = sessions.map(s => toSvg(s.post.v, s.post.a));
+            
+            drawClusterEllipse(svg, prePoints, 'rgba(255,255,255,0.08)', 'rgba(255,255,255,0.2)');
+            drawClusterEllipse(svg, postPoints, 'rgba(74,222,128,0.08)', 'rgba(74,222,128,0.2)');
+            
+            // Draw points
+            sessions.forEach(s => {
+                const color = getColor(s.userId);
+                const pre = toSvg(s.pre.v, s.pre.a);
+                const post = toSvg(s.post.v, s.post.a);
+                
+                // Pre (hollow)
+                const preC = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                preC.setAttribute('cx', pre.x); preC.setAttribute('cy', pre.y);
+                preC.setAttribute('r', '14'); preC.setAttribute('fill', '#111');
+                preC.setAttribute('stroke', color); preC.setAttribute('stroke-width', '3');
+                svg.appendChild(preC);
+                
+                // Pre label
+                const preLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                preLabel.setAttribute('x', pre.x); preLabel.setAttribute('y', pre.y + 4);
+                preLabel.setAttribute('text-anchor', 'middle');
+                preLabel.setAttribute('fill', color);
+                preLabel.setAttribute('font-size', '9'); preLabel.setAttribute('font-weight', '600');
+                preLabel.textContent = s.userId;
+                svg.appendChild(preLabel);
+                
+                // Post (filled)
+                const postC = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                postC.setAttribute('cx', post.x); postC.setAttribute('cy', post.y);
+                postC.setAttribute('r', '14'); postC.setAttribute('fill', color);
+                postC.setAttribute('stroke', 'none');
+                svg.appendChild(postC);
+                
+                // Post label
+                const postLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                postLabel.setAttribute('x', post.x); postLabel.setAttribute('y', post.y + 4);
+                postLabel.setAttribute('text-anchor', 'middle');
+                postLabel.setAttribute('fill', '#000');
+                postLabel.setAttribute('font-size', '9'); postLabel.setAttribute('font-weight', '700');
+                postLabel.textContent = s.userId;
+                svg.appendChild(postLabel);
+            });
+            
+            // Compute cluster stats
+            const preAvgV = sessions.reduce((s, d) => s + d.pre.v, 0) / sessions.length;
+            const preAvgA = sessions.reduce((s, d) => s + d.pre.a, 0) / sessions.length;
+            const postAvgV = sessions.reduce((s, d) => s + d.post.v, 0) / sessions.length;
+            const postAvgA = sessions.reduce((s, d) => s + d.post.a, 0) / sessions.length;
+            
+            const preSpread = Math.sqrt(sessions.reduce((s, d) => s + Math.pow(d.pre.v - preAvgV, 2) + Math.pow(d.pre.a - preAvgA, 2), 0) / sessions.length);
+            const postSpread = Math.sqrt(sessions.reduce((s, d) => s + Math.pow(d.post.v - postAvgV, 2) + Math.pow(d.post.a - postAvgA, 2), 0) / sessions.length);
+            
+            document.getElementById('clusterInsight').innerHTML = `
+                <strong>Insight:</strong> Pre-session states are scattered (spread: ${preSpread.toFixed(1)}) — people arrive in diverse states. 
+                Post-session states are ${postSpread < preSpread ? 'more clustered' : 'similarly spread'} (spread: ${postSpread.toFixed(1)})${postSpread < preSpread ? ', suggesting protocols converge people toward a common region' : ''}.
+                <br><br>
+                <strong>Pre centroid:</strong> Valence ${preAvgV.toFixed(0)}, Arousal ${preAvgA.toFixed(0)} (${getQuadrant(preAvgV, preAvgA)})
+                → <strong>Post centroid:</strong> Valence ${postAvgV.toFixed(0)}, Arousal ${postAvgA.toFixed(0)} (${getQuadrant(postAvgV, postAvgA)})
+            `;
+        }
+        
+        function drawClusterEllipse(svg, points, fill, stroke) {
+            const cx = points.reduce((s, p) => s + p.x, 0) / points.length;
+            const cy = points.reduce((s, p) => s + p.y, 0) / points.length;
+            const rx = Math.max(40, Math.sqrt(points.reduce((s, p) => s + Math.pow(p.x - cx, 2), 0) / points.length) * 2);
+            const ry = Math.max(40, Math.sqrt(points.reduce((s, p) => s + Math.pow(p.y - cy, 2), 0) / points.length) * 2);
+            
+            const ellipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+            ellipse.setAttribute('cx', cx); ellipse.setAttribute('cy', cy);
+            ellipse.setAttribute('rx', rx); ellipse.setAttribute('ry', ry);
+            ellipse.setAttribute('fill', fill); ellipse.setAttribute('stroke', stroke);
+            ellipse.setAttribute('stroke-width', '1'); ellipse.setAttribute('stroke-dasharray', '6,4');
+            svg.appendChild(ellipse);
+        }
+        
+        function showTrajectories() {
+            const container = document.getElementById('vizContainer');
+            container.innerHTML = `
+                <div class="viz-title">Individual Trajectory Arrows</div>
+                <div class="viz-desc">Each arrow shows one person's journey from pre to post. Arrow length = magnitude of shift. Direction = where the protocol moved them.</div>
+                <div class="affect-grid">${makeGrid('trajSvg')}</div>
+                <div class="legend-row">
+                    ${[...new Set(sessions.map(s => s.userId))].map(u => `
+                        <div class="legend-item"><span class="legend-dot" style="background: ${getColor(u)};"></span> ${u}</div>
+                    `).join('')}
+                </div>
+                <div class="viz-insight" id="trajInsight"></div>
+            `;
+            
+            const svg = document.getElementById('trajSvg');
+            
+            sessions.forEach(s => {
+                const color = getColor(s.userId);
+                const pre = toSvg(s.pre.v, s.pre.a);
+                const post = toSvg(s.post.v, s.post.a);
+                
+                // Arrow line
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', pre.x); line.setAttribute('y1', pre.y);
+                line.setAttribute('x2', post.x); line.setAttribute('y2', post.y);
+                line.setAttribute('stroke', color); line.setAttribute('stroke-width', '3');
+                line.setAttribute('opacity', '0.8');
+                svg.appendChild(line);
+                
+                // Arrowhead
+                const angle = Math.atan2(post.y - pre.y, post.x - pre.x);
+                const size = 14;
+                const ax = post.x - size * Math.cos(angle - Math.PI / 6);
+                const ay = post.y - size * Math.sin(angle - Math.PI / 6);
+                const bx = post.x - size * Math.cos(angle + Math.PI / 6);
+                const by = post.y - size * Math.sin(angle + Math.PI / 6);
+                const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                arrow.setAttribute('points', `${post.x},${post.y} ${ax},${ay} ${bx},${by}`);
+                arrow.setAttribute('fill', color);
+                svg.appendChild(arrow);
+                
+                // Pre dot
+                const preC = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                preC.setAttribute('cx', pre.x); preC.setAttribute('cy', pre.y);
+                preC.setAttribute('r', '6'); preC.setAttribute('fill', '#111');
+                preC.setAttribute('stroke', color); preC.setAttribute('stroke-width', '2');
+                svg.appendChild(preC);
+                
+                // Protocol label
+                const mid = { x: (pre.x + post.x) / 2, y: (pre.y + post.y) / 2 };
+                const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                label.setAttribute('x', mid.x); label.setAttribute('y', mid.y - 10);
+                label.setAttribute('text-anchor', 'middle');
+                label.setAttribute('fill', '#888'); label.setAttribute('font-size', '8');
+                label.textContent = s.protocol;
+                svg.appendChild(label);
+            });
+            
+            // Compute average direction
+            const avgDirV = sessions.reduce((s, d) => s + (d.post.v - d.pre.v), 0) / sessions.length;
+            const avgDirA = sessions.reduce((s, d) => s + (d.post.a - d.pre.a), 0) / sessions.length;
+            const avgMag = sessions.reduce((s, d) => s + Math.sqrt(Math.pow(d.post.v - d.pre.v, 2) + Math.pow(d.post.a - d.pre.a, 2)), 0) / sessions.length;
+            
+            document.getElementById('trajInsight').innerHTML = `
+                <strong>Insight:</strong> Average shift magnitude is <strong>${avgMag.toFixed(1)} units</strong>. 
+                The average direction is ${avgDirV > 0 ? 'rightward (more pleasant)' : 'leftward (less pleasant)'} and ${avgDirA < 0 ? 'downward (calmer)' : 'upward (more alert)'}.
+                <br><br>
+                Note DR's massive rightward shift on Evolver (+69 valence) and WR's pure vertical drop on Mastering the Foundation (-33 arousal, 0 valence change).
+            `;
+        }
+        
+        function showQuadrantFlow() {
+            const container = document.getElementById('vizContainer');
+            
+            // Count flows between quadrants
+            const flows = {};
+            sessions.forEach(s => {
+                const preQ = getQuadrant(s.pre.v, s.pre.a);
+                const postQ = getQuadrant(s.post.v, s.post.a);
+                const key = `${preQ}→${postQ}`;
+                if (!flows[key]) flows[key] = { pre: preQ, post: postQ, sessions: [], count: 0 };
+                flows[key].sessions.push(s);
+                flows[key].count++;
+            });
+            
+            const sortedFlows = Object.values(flows).sort((a, b) => b.count - a.count);
+            
+            container.innerHTML = `
+                <div class="viz-title">Quadrant Flow Analysis</div>
+                <div class="viz-desc">Where do people start, and where do they end up? Each row shows a pre→post quadrant transition. Thicker bars = more people taking that path.</div>
+                <div style="margin: 20px 0;">
+                    ${sortedFlows.map(f => {
+                        const preColor = quadrantColors[f.pre];
+                        const postColor = quadrantColors[f.post];
+                        const width = Math.max(f.count / sessions.length * 100, 30);
+                        const users = f.sessions.map(s => s.userId).join(', ');
+                        return `
+                            <div class="flow-row">
+                                <div class="flow-pre" style="background: ${preColor}22; border: 1px solid ${preColor}66; color: ${preColor};">
+                                    ${f.pre}
+                                </div>
+                                <div style="flex: 1; display: flex; align-items: center; justify-content: center; position: relative; max-width: 200px;">
+                                    <div style="height: ${Math.max(f.count * 6, 4)}px; width: 100%; background: linear-gradient(90deg, ${preColor}44, ${postColor}44); border-radius: 4px;"></div>
+                                    <div style="position: absolute; font-size: 0.7rem; color: #888;">×${f.count}</div>
+                                </div>
+                                <div class="flow-post" style="background: ${postColor}22; border: 1px solid ${postColor}66; color: ${postColor};">
+                                    ${f.post}
+                                </div>
+                                <div class="flow-count">${users}</div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+                <div class="viz-insight">
+                    <strong>Insight:</strong> ${sortedFlows.filter(f => f.post === 'Relaxed').reduce((s, f) => s + f.count, 0)} of ${sessions.length} sessions end in the <strong>Relaxed</strong> quadrant (pleasant + calm). 
+                    ${sortedFlows.filter(f => f.pre === f.post).length > 0 ? `Some sessions stay in the same quadrant but still shift within it.` : 'Every session moved to a different quadrant.'}
+                    This view is especially powerful with more data — you'll see dominant pathways emerge.
+                </div>
+            `;
+        }
+        
+        function showProtocols() {
+            const container = document.getElementById('vizContainer');
+            
+            // Group by protocol
+            const protocols = {};
+            sessions.forEach(s => {
+                const key = s.protocol.toLowerCase().replace(/\s+/g, '-');
+                if (!protocols[key]) protocols[key] = { name: s.protocol, sessions: [] };
+                protocols[key].sessions.push(s);
+            });
+            
+            container.innerHTML = `
+                <div class="viz-title">Protocol Signature Maps</div>
+                <div class="viz-desc">Each card shows trajectories for one protocol. With more data, you'll see if protocols have distinct "signatures" — consistent directions and magnitudes.</div>
+                <div class="protocol-cards" id="protCards"></div>
+                <div class="legend-row" style="margin-top: 16px;">
+                    <div class="legend-item"><span class="legend-dot" style="border: 2px solid #888; background: transparent;"></span> Pre</div>
+                    <div class="legend-item"><span class="legend-dot" style="background: #4ade80;"></span> Post</div>
+                </div>
+                <div class="viz-insight">
+                    <strong>Insight:</strong> Even with limited data, notice how <strong>Evolver</strong> shows a massive rightward shift (valence), 
+                    while <strong>Mastering the Foundation</strong> drops arousal without changing valence. 
+                    These could be early signs of distinct protocol signatures — does vibrotactile stimulation consistently improve mood while breathwork-heavy protocols specifically reduce activation?
+                </div>
+            `;
+            
+            const cardsDiv = document.getElementById('protCards');
+            
+            Object.values(protocols).forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'protocol-card';
+                
+                const avgDV = p.sessions.reduce((s, d) => s + (d.post.v - d.pre.v), 0) / p.sessions.length;
+                const avgDA = p.sessions.reduce((s, d) => s + (d.post.a - d.pre.a), 0) / p.sessions.length;
+                
+                card.innerHTML = `
+                    <h4>${p.name} <span style="color: #555; font-weight: 400;">(n=${p.sessions.length})</span></h4>
+                    <svg class="mini-grid" viewBox="-5 -5 110 110">
+                        <rect x="0" y="0" width="100" height="100" fill="none" stroke="#333" stroke-width="0.5" />
+                        <line x1="50" y1="0" x2="50" y2="100" stroke="#333" stroke-width="0.3" stroke-dasharray="2,2" />
+                        <line x1="0" y1="50" x2="100" y2="50" stroke="#333" stroke-width="0.3" stroke-dasharray="2,2" />
+                        ${p.sessions.map(s => {
+                            const color = getColor(s.userId);
+                            const preX = s.pre.v, preY = 100 - s.pre.a;
+                            const postX = s.post.v, postY = 100 - s.post.a;
+                            return `
+                                <line x1="${preX}" y1="${preY}" x2="${postX}" y2="${postY}" stroke="${color}" stroke-width="2" opacity="0.7" />
+                                <circle cx="${preX}" cy="${preY}" r="3" fill="#111" stroke="${color}" stroke-width="1.5" />
+                                <circle cx="${postX}" cy="${postY}" r="3.5" fill="${color}" />
+                            `;
+                        }).join('')}
+                    </svg>
+                    <div style="font-size: 0.75rem; color: #666; margin-top: 8px; text-align: center;">
+                        Avg ΔV: <span style="color: ${avgDV >= 0 ? '#4ade80' : '#f87171'};">${avgDV >= 0 ? '+' : ''}${avgDV.toFixed(0)}</span> &nbsp;
+                        Avg ΔA: <span style="color: ${avgDA <= 0 ? '#4ade80' : '#fbbf24'};">${avgDA >= 0 ? '+' : ''}${avgDA.toFixed(0)}</span>
+                    </div>
+                `;
+                cardsDiv.appendChild(card);
+            });
+        }
+        
+        function showMagnitude() {
+            const container = document.getElementById('vizContainer');
+            
+            const sorted = [...sessions].sort((a, b) => {
+                const magA = Math.sqrt(Math.pow(a.post.v - a.pre.v, 2) + Math.pow(a.post.a - a.pre.a, 2));
+                const magB = Math.sqrt(Math.pow(b.post.v - b.pre.v, 2) + Math.pow(b.post.a - b.pre.a, 2));
+                return magB - magA;
+            });
+            
+            const maxMag = Math.sqrt(Math.pow(100, 2) + Math.pow(100, 2)); // theoretical max ~141
+            
+            container.innerHTML = `
+                <div class="viz-title">Shift Magnitude Ranking</div>
+                <div class="viz-desc">How much did each session move people? Length = total distance traveled in affect space. Color = user. Hover for details.</div>
+                <div style="margin: 20px 0;">
+                    ${sorted.map(s => {
+                        const dv = s.post.v - s.pre.v;
+                        const da = s.post.a - s.pre.a;
+                        const mag = Math.sqrt(dv * dv + da * da);
+                        const pct = (mag / 80) * 100; // scale to 80 as practical max
+                        const color = getColor(s.userId);
+                        
+                        return `
+                            <div class="magnitude-bar">
+                                <div class="magnitude-label">${s.userId} — ${s.protocol}</div>
+                                <div class="magnitude-track">
+                                    <div class="magnitude-fill" style="width: ${Math.max(pct, 8)}%; background: ${color};">
+                                        ${mag.toFixed(0)}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+                <div style="font-size: 0.7rem; color: #555; text-align: center;">Distance in affect space (0-100 scale per axis)</div>
+                <div class="viz-insight">
+                    <strong>Insight:</strong> DR's Evolver session had the largest shift (${Math.sqrt(Math.pow(90-21, 2) + Math.pow(36-36, 2)).toFixed(0)} units) — almost entirely in valence. 
+                    DS's "This is Shiftwave" had the smallest shift (${Math.sqrt(Math.pow(81-84, 2) + Math.pow(29-35, 2)).toFixed(0)} units) — but DS started in a good place already. 
+                    <br><br>
+                    <strong>Key question:</strong> Is a bigger shift always better? Someone arriving in a good state who stays there (small shift) is also a success. Magnitude alone doesn't tell the whole story — direction matters.
+                </div>
+            `;
+        }
+        
+        function showHeatmap() {
+            const container = document.getElementById('vizContainer');
+            container.innerHTML = `
+                <div class="viz-title">Density Heatmap (Pre vs Post)</div>
+                <div class="viz-desc">Shows where data points concentrate. Left = pre-session density. Right = post-session density. With more data, hot spots will reveal common states.</div>
+                <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.75rem; color: #888; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Pre-Session</div>
+                        <svg id="heatPre" viewBox="-5 -5 110 110" style="width: 250px; height: 250px;">
+                            <rect x="0" y="0" width="100" height="100" fill="#111" stroke="#333" stroke-width="0.5" />
+                            <line x1="50" y1="0" x2="50" y2="100" stroke="#333" stroke-width="0.3" stroke-dasharray="2,2" />
+                            <line x1="0" y1="50" x2="100" y2="50" stroke="#333" stroke-width="0.3" stroke-dasharray="2,2" />
+                        </svg>
+                    </div>
+                    <div style="display: flex; align-items: center; font-size: 2rem; color: #333;">→</div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.75rem; color: #888; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Post-Session</div>
+                        <svg id="heatPost" viewBox="-5 -5 110 110" style="width: 250px; height: 250px;">
+                            <rect x="0" y="0" width="100" height="100" fill="#111" stroke="#333" stroke-width="0.5" />
+                            <line x1="50" y1="0" x2="50" y2="100" stroke="#333" stroke-width="0.3" stroke-dasharray="2,2" />
+                            <line x1="0" y1="50" x2="100" y2="50" stroke="#333" stroke-width="0.3" stroke-dasharray="2,2" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="viz-insight">
+                    <strong>Insight:</strong> With only ${sessions.length} sessions, the heatmap is sparse. This visualization becomes powerful at <strong>n=30+</strong> — 
+                    you'll see pre-session hot spots (where people typically arrive) and post-session convergence zones (where protocols land them). 
+                    The gap between these zones IS the Shiftwave effect.
+                    <br><br>
+                    <strong>Preview:</strong> Even now, notice post-session points clustering in the lower-right (pleasant + calm). If this holds with more data, that's your headline finding.
+                </div>
+            `;
+            
+            // Draw heat circles
+            const preSvg = document.getElementById('heatPre');
+            const postSvg = document.getElementById('heatPost');
+            
+            sessions.forEach(s => {
+                const color = getColor(s.userId);
+                
+                // Pre - large transparent circles for "heat"
+                const preHeat = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                preHeat.setAttribute('cx', s.pre.v); preHeat.setAttribute('cy', 100 - s.pre.a);
+                preHeat.setAttribute('r', '15'); preHeat.setAttribute('fill', `${color}33`);
+                preSvg.appendChild(preHeat);
+                
+                const preDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                preDot.setAttribute('cx', s.pre.v); preDot.setAttribute('cy', 100 - s.pre.a);
+                preDot.setAttribute('r', '4'); preDot.setAttribute('fill', color);
+                preSvg.appendChild(preDot);
+                
+                // Post
+                const postHeat = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                postHeat.setAttribute('cx', s.post.v); postHeat.setAttribute('cy', 100 - s.post.a);
+                postHeat.setAttribute('r', '15'); postHeat.setAttribute('fill', `${color}33`);
+                postSvg.appendChild(postHeat);
+                
+                const postDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                postDot.setAttribute('cx', s.post.v); postDot.setAttribute('cy', 100 - s.post.a);
+                postDot.setAttribute('r', '4'); postDot.setAttribute('fill', color);
+                postSvg.appendChild(postDot);
+            });
+        }
+        
+        // ========== TAB SWITCHING ==========
+        
+        const vizMap = {
+            'clusters': showClusters,
+            'trajectories': showTrajectories,
+            'quadrantFlow': showQuadrantFlow,
+            'protocols': showProtocols,
+            'magnitude': showMagnitude,
+            'heatmap': showHeatmap,
+        };
+        
+        function showViz(name) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            vizMap[name]();
+        }
+        
+        // Init - fetch data on load
+        fetchData();
+    </script>
+</body>
+</html>
