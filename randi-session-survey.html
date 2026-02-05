@@ -279,35 +279,39 @@
             border-radius: 50%;
         }
         
-        /* Word labels - outside the emoji ring */
+        /* Word labels - outside the emoji ring, larger and lighter */
         .word-label {
             position: absolute;
-            font-size: 0.6rem;
-            color: #666666;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #ccc;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             white-space: nowrap;
         }
         
-        .word-tl { left: 20px; top: -6px; transform: translateX(-50%); }
-        .word-tc { left: 50%; top: -6px; transform: translateX(-50%); }
-        .word-tr { right: 20px; top: -6px; transform: translateX(50%); }
-        .word-ml { left: -24px; top: 50%; transform: translateY(-50%) rotate(-90deg); transform-origin: center center; }
-        .word-mr { right: -24px; top: 50%; transform: translateY(-50%) rotate(90deg); transform-origin: center center; }
-        .word-bl { left: 20px; bottom: -6px; transform: translateX(-50%); }
-        .word-bc { left: 50%; bottom: -6px; transform: translateX(-50%); }
-        .word-br { right: 20px; bottom: -6px; transform: translateX(50%); }
+        /* Top/bottom labels */
+        .word-tl { left: 20px; top: -8px; transform: translateX(-50%); }
+        .word-tc { left: 50%; top: -8px; transform: translateX(-50%); }
+        .word-tr { right: 20px; top: -8px; transform: translateX(50%); }
+        .word-bl { left: 20px; bottom: -8px; transform: translateX(-50%); }
+        .word-bc { left: 50%; bottom: -8px; transform: translateX(-50%); }
+        .word-br { right: 20px; bottom: -8px; transform: translateX(50%); }
+        
+        /* Side labels - VERTICAL (rotated 90°), pushed further out */
+        .word-ml { left: -32px; top: 50%; transform: translateY(-50%) rotate(-90deg); transform-origin: center center; }
+        .word-mr { right: -32px; top: 50%; transform: translateY(-50%) rotate(90deg); transform-origin: center center; }
         
         .grid-values {
             text-align: center;
             margin-top: 8px;
-            font-size: 0.8rem;
-            color: #666;
+            font-size: 0.85rem;
+            color: #888;
         }
         
         .grid-values span {
-            color: #aaa;
-            font-weight: 500;
+            color: #fff;
+            font-weight: 600;
         }
         
         /* ========== VAS SLIDERS ========== */
@@ -336,8 +340,10 @@
             margin-bottom: 8px;
             font-size: 0.7rem;
             color: #666;
+            transition: color 0.3s;
         }
         
+        /* Dormant state - grey */
         .vas-slider {
             width: 100%;
             height: 8px;
@@ -346,6 +352,8 @@
             background: #333;
             border-radius: 4px;
             outline: none;
+            opacity: 0.5;
+            transition: opacity 0.3s, background 0.3s;
         }
         
         .vas-slider::-webkit-slider-thumb {
@@ -353,76 +361,236 @@
             appearance: none;
             width: 24px;
             height: 24px;
-            background: #fff;
+            background: #666;
             border-radius: 50%;
             cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            border: 2px solid #555;
+            transition: all 0.2s;
         }
         
         .vas-slider::-moz-range-thumb {
             width: 24px;
             height: 24px;
-            background: #fff;
+            background: #666;
             border-radius: 50%;
             cursor: pointer;
-            border: none;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            border: 2px solid #555;
+        }
+        
+        /* Engaged state - white */
+        .vas-item.engaged .vas-slider {
+            opacity: 1;
+            background: #555;
+        }
+        
+        .vas-item.engaged .vas-slider::-webkit-slider-thumb {
+            background: #fff;
+            border-color: #fff;
+            box-shadow: 0 0 8px rgba(255,255,255,0.3);
+        }
+        
+        .vas-item.engaged .vas-slider::-moz-range-thumb {
+            background: #fff;
+            border-color: #fff;
+        }
+        
+        .vas-item.engaged .vas-labels {
+            color: #aaa;
         }
         
         .vas-value {
             text-align: center;
             margin-top: 8px;
             font-size: 0.8rem;
-            color: #888;
+            color: #666;
+            transition: color 0.3s;
         }
         
-        /* ========== PAIN SCALE (NRS) ========== */
-        .nrs-container {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        
-        .nrs-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
-            background: #0a0a0a;
-            border: 1px solid #333;
-            color: #888;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-        
-        .nrs-btn:hover {
-            border-color: #555;
-        }
-        
-        .nrs-btn.selected {
-            background: #ef4444;
-            border-color: #ef4444;
+        .vas-item.engaged .vas-value {
             color: #fff;
-            font-weight: 600;
         }
         
-        .nrs-btn.selected.low {
-            background: #22c55e;
-            border-color: #22c55e;
+        /* Engagement prompt for VAS */
+        .vas-prompt {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #888;
+            font-style: italic;
+            margin-top: 4px;
         }
         
-        .nrs-btn.selected.medium {
-            background: #f59e0b;
-            border-color: #f59e0b;
+        .vas-item.engaged .vas-prompt {
+            display: none;
         }
         
-        .nrs-labels {
+        /* ========== PAIN VAS (Visual Analog Scale) ========== */
+        .pain-vas-container {
+            padding: 10px 0;
+        }
+        
+        .pain-vas-container.engaged .pain-vas-slider {
+            opacity: 1;
+        }
+        
+        .pain-vas-container.engaged .pain-vas-slider::-webkit-slider-thumb {
+            background: #fff;
+            border-color: #fff;
+            box-shadow: 0 0 8px rgba(255,255,255,0.3);
+        }
+        
+        .pain-vas-container.engaged .pain-vas-slider::-webkit-slider-runnable-track {
+            background: #555;
+            border-color: #888;
+        }
+        
+        .pain-vas-container.engaged .pain-prompt {
+            display: none;
+        }
+        
+        /* Word labels: No Pain / Moderate Pain / Worst Pain */
+        .pain-word-labels {
             display: flex;
             justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #ccc;
+            text-align: center;
+        }
+        
+        .pain-word-labels span {
+            flex: 1;
+            line-height: 1.2;
+        }
+        
+        .pain-word-labels span:first-child { text-align: left; }
+        .pain-word-labels span:nth-child(2) { text-align: center; }
+        .pain-word-labels span:last-child { text-align: right; }
+        
+        /* Slider wrapper */
+        .pain-slider-wrapper {
+            position: relative;
+            padding: 10px 0;
+        }
+        
+        /* Pain slider - dormant state (grey) */
+        .pain-vas-slider {
+            width: 100%;
+            height: 12px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.3s;
+        }
+        
+        .pain-vas-slider::-webkit-slider-runnable-track {
+            height: 12px;
+            background: #333;
+            border-radius: 6px;
+            border: 1px solid #444;
+        }
+        
+        .pain-vas-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 28px;
+            height: 28px;
+            background: #666;
+            border-radius: 50%;
+            margin-top: -9px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid #555;
+        }
+        
+        .pain-vas-slider::-moz-range-track {
+            height: 12px;
+            background: #333;
+            border-radius: 6px;
+            border: 1px solid #444;
+        }
+        
+        .pain-vas-slider::-moz-range-thumb {
+            width: 28px;
+            height: 28px;
+            background: #666;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #555;
+        }
+        
+        /* Engaged state overrides */
+        .pain-vas-container.engaged .pain-vas-slider::-moz-range-track {
+            background: #555;
+            border-color: #888;
+        }
+        
+        .pain-vas-container.engaged .pain-vas-slider::-moz-range-thumb {
+            background: #fff;
+            border-color: #fff;
+        }
+        
+        /* Number scale 0-10 */
+        .pain-number-scale {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 4px;
+            padding: 0 2px;
+        }
+        
+        .pain-number-scale span {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #888;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .pain-vas-container.engaged .pain-number-scale span {
+            color: #ccc;
+        }
+        
+        /* Wong-Baker style faces - SVG container */
+        .pain-faces {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 16px;
+            padding: 0 4px;
+        }
+        
+        .pain-faces svg {
+            width: 48px;
+            height: 48px;
+            opacity: 0.5;
+            transition: opacity 0.3s;
+        }
+        
+        .pain-vas-container.engaged .pain-faces svg {
+            opacity: 1;
+        }
+        
+        /* Current value display */
+        .pain-value-display {
+            text-align: center;
+            margin-top: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #666;
+            transition: color 0.3s;
+        }
+        
+        .pain-vas-container.engaged .pain-value-display {
+            color: #fff;
+        }
+        
+        /* Engagement prompt */
+        .pain-prompt {
+            text-align: center;
             margin-top: 8px;
-            font-size: 0.65rem;
-            color: #555;
+            font-size: 0.75rem;
+            color: #888;
+            font-style: italic;
         }
         
         /* ========== STAI-6 LIKERT ========== */
@@ -518,14 +686,63 @@
             transition: all 0.15s;
         }
         
-        .submit-btn:hover {
+        .submit-btn:hover:not(.incomplete):not(:disabled) {
             background: #e0e0e0;
         }
         
-        .submit-btn:disabled {
+        .submit-btn.incomplete {
             background: #333;
             color: #666;
-            cursor: not-allowed;
+        }
+        
+        .submit-btn.ready {
+            background: #4ade80;
+            color: #000;
+        }
+        
+        .submit-btn.ready:hover:not(:disabled) {
+            background: #22c55e;
+        }
+        
+        .submit-btn:disabled {
+            background: #555;
+            color: #888;
+            cursor: wait;
+        }
+        
+        /* Incomplete field highlighting */
+        .section.incomplete {
+            animation: pulse-border 0.6s ease-out;
+            border-color: #f59e0b !important;
+        }
+        
+        @keyframes pulse-border {
+            0% { border-color: #333; box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+            50% { border-color: #f59e0b; box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
+            100% { border-color: #f59e0b; box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+        
+        .vas-item.incomplete .vas-slider-container,
+        .likert-item.incomplete .likert-options {
+            animation: pulse-highlight 0.6s ease-out;
+        }
+        
+        @keyframes pulse-highlight {
+            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+            50% { box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.3); }
+            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+        
+        /* Completion status indicator */
+        .completion-status {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        
+        .completion-status.complete {
+            color: #4ade80;
         }
         
         /* Progress indicator */
@@ -638,7 +855,7 @@
         <div class="section">
             <div class="section-title">Body</div>
             
-            <div class="vas-item">
+            <div class="vas-item" id="vasItem_bodyTension">
                 <div class="vas-question">How does your body feel right now?</div>
                 <div class="vas-slider-container">
                     <div class="vas-labels">
@@ -646,11 +863,11 @@
                         <span>Relaxed</span>
                     </div>
                     <input type="range" class="vas-slider" id="bodyTension" min="0" max="100" value="50">
-                    <div class="vas-value"><span id="bodyTensionValue">50</span></div>
+                    <div class="vas-value"><span id="bodyTensionValue">—</span></div>
                 </div>
             </div>
             
-            <div class="vas-item">
+            <div class="vas-item" id="vasItem_bodyConnection">
                 <div class="vas-question">How connected do you feel to your body right now?</div>
                 <div class="vas-slider-container">
                     <div class="vas-labels">
@@ -658,31 +875,93 @@
                         <span>Connected</span>
                     </div>
                     <input type="range" class="vas-slider" id="bodyConnection" min="0" max="100" value="50">
-                    <div class="vas-value"><span id="bodyConnectionValue">50</span></div>
+                    <div class="vas-value"><span id="bodyConnectionValue">—</span></div>
                 </div>
             </div>
         </div>
         
-        <!-- Section 2: Pain (NRS) -->
+        <!-- Section 2: Pain VAS (Visual Analog Scale) -->
         <div class="section">
             <div class="section-title">Pain</div>
             <div class="vas-question">Rate your pain level right now</div>
-            <div class="nrs-container" id="painScale">
-                <button type="button" class="nrs-btn" data-value="0">0</button>
-                <button type="button" class="nrs-btn" data-value="1">1</button>
-                <button type="button" class="nrs-btn" data-value="2">2</button>
-                <button type="button" class="nrs-btn" data-value="3">3</button>
-                <button type="button" class="nrs-btn" data-value="4">4</button>
-                <button type="button" class="nrs-btn" data-value="5">5</button>
-                <button type="button" class="nrs-btn" data-value="6">6</button>
-                <button type="button" class="nrs-btn" data-value="7">7</button>
-                <button type="button" class="nrs-btn" data-value="8">8</button>
-                <button type="button" class="nrs-btn" data-value="9">9</button>
-                <button type="button" class="nrs-btn" data-value="10">10</button>
-            </div>
-            <div class="nrs-labels">
-                <span>No Pain</span>
-                <span>Worst Pain</span>
+            
+            <div class="pain-vas-container" id="painVasContainer">
+                <!-- Word labels above -->
+                <div class="pain-word-labels">
+                    <span>No<br>Pain</span>
+                    <span>Moderate<br>Pain</span>
+                    <span>Worst<br>Pain</span>
+                </div>
+                
+                <!-- Slider -->
+                <div class="pain-slider-wrapper">
+                    <input type="range" class="pain-vas-slider" id="painSlider" min="0" max="100" value="50" step="1">
+                </div>
+                
+                <!-- Number scale -->
+                <div class="pain-number-scale">
+                    <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+                </div>
+                
+                <!-- Wong-Baker Faces - white line drawings -->
+                <div class="pain-faces">
+                    <!-- Face 0: Happy/No Pain -->
+                    <svg viewBox="0 0 100 100" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round">
+                        <circle cx="50" cy="50" r="45"/>
+                        <circle cx="35" cy="40" r="5" fill="#fff"/>
+                        <circle cx="65" cy="40" r="5" fill="#fff"/>
+                        <path d="M30 60 Q50 80 70 60"/>
+                    </svg>
+                    <!-- Face 2: Slight smile -->
+                    <svg viewBox="0 0 100 100" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round">
+                        <circle cx="50" cy="50" r="45"/>
+                        <circle cx="35" cy="40" r="5" fill="#fff"/>
+                        <circle cx="65" cy="40" r="5" fill="#fff"/>
+                        <path d="M32 62 Q50 72 68 62"/>
+                    </svg>
+                    <!-- Face 4: Neutral -->
+                    <svg viewBox="0 0 100 100" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round">
+                        <circle cx="50" cy="50" r="45"/>
+                        <circle cx="35" cy="40" r="5" fill="#fff"/>
+                        <circle cx="65" cy="40" r="5" fill="#fff"/>
+                        <line x1="32" y1="65" x2="68" y2="65"/>
+                    </svg>
+                    <!-- Face 6: Slight frown -->
+                    <svg viewBox="0 0 100 100" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round">
+                        <circle cx="50" cy="50" r="45"/>
+                        <circle cx="35" cy="40" r="5" fill="#fff"/>
+                        <circle cx="65" cy="40" r="5" fill="#fff"/>
+                        <path d="M32 70 Q50 60 68 70"/>
+                    </svg>
+                    <!-- Face 8: Frown with furrowed brow -->
+                    <svg viewBox="0 0 100 100" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round">
+                        <circle cx="50" cy="50" r="45"/>
+                        <line x1="28" y1="32" x2="40" y2="38"/>
+                        <line x1="72" y1="32" x2="60" y2="38"/>
+                        <circle cx="35" cy="44" r="5" fill="#fff"/>
+                        <circle cx="65" cy="44" r="5" fill="#fff"/>
+                        <path d="M30 72 Q50 58 70 72"/>
+                    </svg>
+                    <!-- Face 10: Crying/Worst Pain -->
+                    <svg viewBox="0 0 100 100" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round">
+                        <circle cx="50" cy="50" r="45"/>
+                        <line x1="26" y1="30" x2="42" y2="38"/>
+                        <line x1="74" y1="30" x2="58" y2="38"/>
+                        <circle cx="35" cy="44" r="5" fill="#fff"/>
+                        <circle cx="65" cy="44" r="5" fill="#fff"/>
+                        <path d="M28 75 Q50 58 72 75"/>
+                        <path d="M72 50 Q78 60 72 70" stroke-width="2"/>
+                        <path d="M28 50 Q22 60 28 70" stroke-width="2"/>
+                    </svg>
+                </div>
+                
+                <!-- Current value display -->
+                <div class="pain-value-display">
+                    <span id="painValueDisplay">—</span>
+                </div>
+                
+                <!-- Engagement prompt -->
+                <div class="pain-prompt" id="painPrompt">Slide to indicate your pain level</div>
             </div>
         </div>
         
@@ -690,7 +969,7 @@
         <div class="section">
             <div class="section-title">Energy & Mind</div>
             
-            <div class="vas-item">
+            <div class="vas-item" id="vasItem_energy">
                 <div class="vas-question">How is your energy level right now?</div>
                 <div class="vas-slider-container">
                     <div class="vas-labels">
@@ -698,11 +977,11 @@
                         <span>Alive & Energized</span>
                     </div>
                     <input type="range" class="vas-slider" id="energy" min="0" max="100" value="50">
-                    <div class="vas-value"><span id="energyValue">50</span></div>
+                    <div class="vas-value"><span id="energyValue">—</span></div>
                 </div>
             </div>
             
-            <div class="vas-item">
+            <div class="vas-item" id="vasItem_clarity">
                 <div class="vas-question">How does your mind feel right now?</div>
                 <div class="vas-slider-container">
                     <div class="vas-labels">
@@ -710,11 +989,11 @@
                         <span>Clear</span>
                     </div>
                     <input type="range" class="vas-slider" id="clarity" min="0" max="100" value="50">
-                    <div class="vas-value"><span id="clarityValue">50</span></div>
+                    <div class="vas-value"><span id="clarityValue">—</span></div>
                 </div>
             </div>
             
-            <div class="vas-item">
+            <div class="vas-item" id="vasItem_mentalQuiet">
                 <div class="vas-question">How busy is your mind right now?</div>
                 <div class="vas-slider-container">
                     <div class="vas-labels">
@@ -722,11 +1001,11 @@
                         <span>Mentally Still</span>
                     </div>
                     <input type="range" class="vas-slider" id="mentalQuiet" min="0" max="100" value="50">
-                    <div class="vas-value"><span id="mentalQuietValue">50</span></div>
+                    <div class="vas-value"><span id="mentalQuietValue">—</span></div>
                 </div>
             </div>
             
-            <div class="vas-item">
+            <div class="vas-item" id="vasItem_alertness">
                 <div class="vas-question">How awake do you feel right now?</div>
                 <div class="vas-slider-container">
                     <div class="vas-labels">
@@ -734,7 +1013,7 @@
                         <span>Wide Awake</span>
                     </div>
                     <input type="range" class="vas-slider" id="alertness" min="0" max="100" value="50">
-                    <div class="vas-value"><span id="alertnessValue">50</span></div>
+                    <div class="vas-value"><span id="alertnessValue">—</span></div>
                 </div>
             </div>
         </div>
@@ -877,24 +1156,35 @@
     
     <!-- Submit button -->
     <div class="submit-section">
-        <button class="submit-btn" id="submitBtn" onclick="submitSurvey()">Submit Check-In</button>
+        <div class="completion-status" id="completionStatus">Complete all items to submit</div>
+        <button class="submit-btn incomplete" id="submitBtn" onclick="handleSubmitClick()">Submit Check-In</button>
     </div>
     
     <script>
         // ========== CONFIGURATION ==========
-        const GOOGLE_SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyrVZk021RPCQw-pMDvTbz6CNKgy_kpwRgKIcdVpq1VYzylSPaCfdWtzeHRMyAhr665pw/exec';
         
         // ========== STATE ==========
         let formData = {
             valence: null,
             arousal: null,
+            // VAS values (all start at 50 but need engagement)
             bodyTension: 50,
+            bodyTensionEngaged: false,
             energy: 50,
+            energyEngaged: false,
             bodyConnection: 50,
+            bodyConnectionEngaged: false,
             clarity: 50,
+            clarityEngaged: false,
             mentalQuiet: 50,
+            mentalQuietEngaged: false,
             alertness: 50,
-            pain: null,
+            alertnessEngaged: false,
+            // Pain VAS
+            pain: 5.0,
+            painEngaged: false,
+            // STAI-6
             stai_calm: null,
             stai_tense: null,
             stai_upset: null,
@@ -981,34 +1271,65 @@
         grid.addEventListener('touchstart', handleGridInteraction);
         grid.addEventListener('touchmove', handleGridInteraction);
         
-        // ========== VAS SLIDERS ==========
-        const sliders = ['bodyTension', 'energy', 'bodyConnection', 'clarity', 'mentalQuiet', 'alertness'];
+        // ========== VAS SLIDERS (with engagement tracking) ==========
+        const vasSliders = ['bodyTension', 'energy', 'bodyConnection', 'clarity', 'mentalQuiet', 'alertness'];
         
-        sliders.forEach(id => {
+        vasSliders.forEach(id => {
             const slider = document.getElementById(id);
             const valueDisplay = document.getElementById(id + 'Value');
+            const vasItem = document.getElementById('vasItem_' + id);
             
+            function engageSlider() {
+                if (!formData[id + 'Engaged']) {
+                    formData[id + 'Engaged'] = true;
+                    vasItem.classList.add('engaged');
+                }
+            }
+            
+            slider.addEventListener('mousedown', engageSlider);
+            slider.addEventListener('touchstart', engageSlider);
             slider.addEventListener('input', () => {
+                engageSlider();
                 formData[id] = parseInt(slider.value);
                 valueDisplay.textContent = slider.value;
                 updateProgress();
             });
         });
         
-        // ========== PAIN SCALE ==========
-        document.querySelectorAll('#painScale .nrs-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('#painScale .nrs-btn').forEach(b => b.classList.remove('selected', 'low', 'medium'));
-                btn.classList.add('selected');
-                
-                const value = parseInt(btn.dataset.value);
-                formData.pain = value;
-                
-                if (value <= 3) btn.classList.add('low');
-                else if (value <= 6) btn.classList.add('medium');
-                
-                updateProgress();
-            });
+        // ========== PAIN VAS SLIDER ==========
+        const painSlider = document.getElementById('painSlider');
+        const painContainer = document.getElementById('painVasContainer');
+        const painValueDisplay = document.getElementById('painValueDisplay');
+        const painPrompt = document.getElementById('painPrompt');
+        
+        function engagePainSlider() {
+            if (!formData.painEngaged) {
+                formData.painEngaged = true;
+                painContainer.classList.add('engaged');
+                painPrompt.style.display = 'none';
+            }
+        }
+        
+        function updatePainValue() {
+            // Convert 0-100 slider to 0-10 scale with one decimal
+            const value = (parseInt(painSlider.value) / 10).toFixed(1);
+            formData.pain = parseFloat(value);
+            painValueDisplay.textContent = value;
+            updateProgress();
+        }
+        
+        // Engage on any interaction
+        painSlider.addEventListener('mousedown', engagePainSlider);
+        painSlider.addEventListener('touchstart', engagePainSlider);
+        painSlider.addEventListener('input', () => {
+            engagePainSlider();
+            updatePainValue();
+        });
+        
+        // Allow clicking on the track to jump
+        painSlider.addEventListener('click', (e) => {
+            engagePainSlider();
+            updatePainValue();
         });
         
         // ========== STAI-6 LIKERT ==========
@@ -1033,11 +1354,113 @@
         }
         
         // ========== PROGRESS ==========
+        function getCompletionStatus() {
+            const vasSliders = ['bodyTension', 'bodyConnection', 'energy', 'clarity', 'mentalQuiet', 'alertness'];
+            const staiItems = ['stai_calm', 'stai_tense', 'stai_upset', 'stai_relaxed', 'stai_content', 'stai_worried'];
+            const missing = [];
+            
+            // Setup fields
+            const userId = document.getElementById('userId').value.trim();
+            const protocol = document.getElementById('protocol').value.trim();
+            if (!userId) missing.push({ type: 'setup', id: 'userId', label: 'Initials' });
+            if (!protocol) missing.push({ type: 'setup', id: 'protocol', label: 'Protocol' });
+            
+            // EmojiGrid
+            if (formData.valence === null || formData.arousal === null) {
+                missing.push({ type: 'emojigrid', id: 'emojiGrid', label: 'Emotion Grid' });
+            }
+            
+            // VAS sliders
+            vasSliders.forEach(id => {
+                if (!formData[id + 'Engaged']) {
+                    missing.push({ type: 'vas', id: 'vasItem_' + id, label: id });
+                }
+            });
+            
+            // Pain
+            if (!formData.painEngaged) {
+                missing.push({ type: 'pain', id: 'painVasContainer', label: 'Pain' });
+            }
+            
+            // STAI-6 items
+            staiItems.forEach(item => {
+                if (formData[item] === null) {
+                    missing.push({ type: 'stai', id: item, label: item.replace('stai_', '').toUpperCase() });
+                }
+            });
+            
+            return {
+                complete: missing.length === 0,
+                missing: missing,
+                filled: 16 - missing.length, // Total required fields
+                total: 16
+            };
+        }
+        
         function updateProgress() {
-            const required = ['valence', 'arousal', 'pain', 'stai_calm', 'stai_tense', 'stai_upset', 'stai_relaxed', 'stai_content', 'stai_worried'];
-            const filled = required.filter(key => formData[key] !== null).length;
-            const percentage = (filled / required.length) * 100;
+            const status = getCompletionStatus();
+            const percentage = (status.filled / status.total) * 100;
             document.getElementById('progressBar').style.width = percentage + '%';
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const completionStatus = document.getElementById('completionStatus');
+            
+            if (status.complete) {
+                submitBtn.classList.remove('incomplete');
+                submitBtn.classList.add('ready');
+                completionStatus.textContent = 'Ready to submit ✓';
+                completionStatus.classList.add('complete');
+            } else {
+                submitBtn.classList.add('incomplete');
+                submitBtn.classList.remove('ready');
+                const remaining = status.total - status.filled;
+                completionStatus.textContent = `${remaining} item${remaining === 1 ? '' : 's'} remaining`;
+                completionStatus.classList.remove('complete');
+            }
+        }
+        
+        // ========== HANDLE SUBMIT CLICK ==========
+        function handleSubmitClick() {
+            const status = getCompletionStatus();
+            
+            if (status.complete) {
+                submitSurvey();
+            } else {
+                // Highlight first incomplete field and scroll to it
+                highlightIncomplete(status.missing);
+            }
+        }
+        
+        function highlightIncomplete(missing) {
+            // Clear any previous highlights
+            document.querySelectorAll('.section.incomplete').forEach(el => el.classList.remove('incomplete'));
+            
+            if (missing.length === 0) return;
+            
+            const first = missing[0];
+            let targetEl;
+            
+            if (first.type === 'setup') {
+                targetEl = document.getElementById(first.id);
+                targetEl.focus();
+                targetEl.closest('.section').classList.add('incomplete');
+            } else if (first.type === 'emojigrid') {
+                targetEl = document.getElementById('emojiGrid').closest('.section');
+                targetEl.classList.add('incomplete');
+            } else if (first.type === 'vas') {
+                targetEl = document.getElementById(first.id).closest('.section');
+                targetEl.classList.add('incomplete');
+            } else if (first.type === 'pain') {
+                targetEl = document.getElementById('painVasContainer').closest('.section');
+                targetEl.classList.add('incomplete');
+            } else if (first.type === 'stai') {
+                targetEl = document.querySelector(`[data-item="${first.id}"]`).closest('.section');
+                targetEl.classList.add('incomplete');
+            }
+            
+            if (targetEl) {
+                targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
         }
         
         // ========== STAI-6 SCORING ==========
@@ -1052,20 +1475,16 @@
         
         // ========== SUBMIT ==========
         async function submitSurvey() {
+            // Double-check completion (button should already be disabled if incomplete)
+            const status = getCompletionStatus();
+            if (!status.complete) {
+                highlightIncomplete(status.missing);
+                return;
+            }
+            
             const userId = document.getElementById('userId').value.trim().toUpperCase();
             const protocol = document.getElementById('protocol').value.trim();
             const comment = document.getElementById('comment').value.trim();
-            
-            if (!userId) { alert('Please enter your initials'); return; }
-            if (!protocol) { alert('Please enter the protocol name'); return; }
-            if (formData.valence === null) { alert('Please tap the emoji grid'); return; }
-            if (formData.pain === null) { alert('Please select your pain level'); return; }
-            
-            const staiItems = ['stai_calm', 'stai_tense', 'stai_upset', 'stai_relaxed', 'stai_content', 'stai_worried'];
-            if (staiItems.some(item => formData[item] === null)) {
-                alert('Please complete all STAI-6 items');
-                return;
-            }
             
             const staiScore = calculateSTAI6Score();
             
@@ -1124,9 +1543,13 @@
         function resetForm() {
             formData = {
                 valence: null, arousal: null,
-                bodyTension: 50, energy: 50, bodyConnection: 50,
-                clarity: 50, mentalQuiet: 50, alertness: 50,
-                pain: null,
+                bodyTension: 50, bodyTensionEngaged: false,
+                energy: 50, energyEngaged: false,
+                bodyConnection: 50, bodyConnectionEngaged: false,
+                clarity: 50, clarityEngaged: false,
+                mentalQuiet: 50, mentalQuietEngaged: false,
+                alertness: 50, alertnessEngaged: false,
+                pain: 5.0, painEngaged: false,
                 stai_calm: null, stai_tense: null, stai_upset: null,
                 stai_relaxed: null, stai_content: null, stai_worried: null
             };
@@ -1134,12 +1557,19 @@
             marker.classList.remove('visible');
             gridValues.innerHTML = 'Tap inside the grid';
             
-            sliders.forEach(id => {
+            // Reset all VAS sliders
+            vasSliders.forEach(id => {
                 document.getElementById(id).value = 50;
-                document.getElementById(id + 'Value').textContent = '50';
+                document.getElementById(id + 'Value').textContent = '—';
+                document.getElementById('vasItem_' + id).classList.remove('engaged');
             });
             
-            document.querySelectorAll('.nrs-btn').forEach(b => b.classList.remove('selected', 'low', 'medium'));
+            // Reset pain VAS
+            painSlider.value = 50;
+            painValueDisplay.textContent = '—';
+            painContainer.classList.remove('engaged');
+            painPrompt.style.display = '';
+            
             document.querySelectorAll('.likert-btn').forEach(b => b.classList.remove('selected'));
             
             document.getElementById('comment').value = '';
@@ -1152,11 +1582,19 @@
             document.querySelector('.submit-section').classList.remove('hidden');
             
             const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = false;
+            submitBtn.classList.add('incomplete');
+            submitBtn.classList.remove('ready');
             submitBtn.textContent = 'Submit Check-In';
+            
+            document.getElementById('completionStatus').textContent = 'Complete all items to submit';
+            document.getElementById('completionStatus').classList.remove('complete');
             
             window.scrollTo(0, 0);
         }
+        
+        // ========== SETUP FIELD LISTENERS ==========
+        document.getElementById('userId').addEventListener('input', updateProgress);
+        document.getElementById('protocol').addEventListener('input', updateProgress);
         
         updateProgress();
     </script>
