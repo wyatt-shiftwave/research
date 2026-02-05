@@ -275,15 +275,19 @@
             const pending = {};
             
             data.forEach(row => {
-                const key = `${row['User ID']}_${row['Protocol']}_${row['Timestamp'].split('T')[0]}`;
+                // Normalize: lowercase protocol, trim whitespace
+                const protocol = (row['Protocol'] || '').toLowerCase().trim();
+                const userId = (row['User ID'] || '').toUpperCase().trim();
+                const date = row['Timestamp'].split('T')[0];
+                const key = `${userId}_${protocol}_${date}`;
                 
                 if (row['Timing'] === 'pre') {
                     pending[key] = row;
                 } else if (row['Timing'] === 'post' && pending[key]) {
                     paired.push({
-                        userId: row['User ID'],
-                        protocol: row['Protocol'],
-                        date: row['Timestamp'].split('T')[0],
+                        userId: userId,
+                        protocol: row['Protocol'], // Keep original display name
+                        date: date,
                         pre: {
                             v: parseInt(pending[key]['Valence (0-100)']),
                             a: parseInt(pending[key]['Arousal (0-100)'])
