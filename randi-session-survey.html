@@ -1184,11 +1184,23 @@
             cursor: not-allowed;
         }
 
-        /* Survey body &mdash; blocked until consent given in field mode */
+        /* Survey body — shadowed until name recognized */
         #surveyBody.consent-blocked {
             pointer-events: none;
             opacity: 0.2;
             user-select: none;
+        }
+
+        #welcomeBanner {
+            background: #0f2a1a;
+            border: 1px solid #2a6b3a;
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #4ade80;
+            font-size: 0.9rem;
+            font-weight: 500;
         }
     </style>
 </head>
@@ -1247,7 +1259,10 @@
             </div>
         </div>
         
-        <!-- Consent Gate (field mode only, new participants) -->
+        <!-- Welcome back banner (returning participants) -->
+        <div id="welcomeBanner" class="hidden"></div>
+
+        <!-- Consent Gate (new participants) -->
         <div id="consentGate" class="hidden">
             <p>Before participating, please review and accept the following:<br><br>
             <strong>Data controller:</strong> Shiftwave is responsible for the collection and use of your data.<br><br>
@@ -1255,7 +1270,9 @@
             <strong>Sharing with your organization:</strong> Aggregated, de-identified results may be shared with the organization hosting this study for the purpose of evaluating Shiftwave.<br><br>
             <strong>Research and publication:</strong> Data may also be used in aggregate, de-identified form for Shiftwave&rsquo;s internal research and, potentially, future publication. No individual will be identifiable in any published output.<br><br>
             <strong>Data retention:</strong> Data will be retained for a minimum of 2 years and may be held longer for research continuity. You may request deletion of your record at any time by contacting privacy@shiftwave.com.<br><br>
-            Participation is voluntary and you may stop at any time without consequence. By checking the box below you confirm you understand and agree to these terms.</p>
+            Participation is voluntary and you may stop at any time without consequence.<br><br>
+            <strong>Risks:</strong> Participating involves minimal risk. The primary risk is potential breach of confidentiality; reasonable safeguards are in place to reduce this risk. By proceeding, you also acknowledge that you have reviewed the <a href="https://shiftwave.co/pages/shiftwave-contraindications" target="_blank" style="color:#4ade80;">contraindications to Shiftwave use</a> and confirm they do not apply to you.<br><br>
+            By checking the box below you confirm you understand and agree to these terms.</p>
             <label>
                 <input type="checkbox" id="consentCheck" onchange="document.getElementById('consentBtn').disabled = !this.checked;">
                 I agree to participate
@@ -1263,8 +1280,8 @@
             <button id="consentBtn" disabled onclick="acceptConsent()">Continue to Survey</button>
         </div>
 
-        <!-- Survey Body (blocked until consent in field mode) -->
-        <div id="surveyBody">
+        <!-- Survey Body (shadowed until name recognized or consent accepted) -->
+        <div id="surveyBody" class="consent-blocked">
         <div id="surveyBodyStart"></div><!-- anchor for pre-session addon injection -->
 
         <!-- Global State-Focus Instruction -->
@@ -1588,7 +1605,7 @@
             INTERNAL_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwRxN9SYtjDMwAUcEEDs9w2UYT3o-Pq28b-JygOnu7k9yHVY0fyfuzVv5DG0u7vaGdW/exec',
             DEPLOYMENT_PRESETS: {
                 'CAA_Feb2026': {
-                    scriptUrl: 'https://script.google.com/macros/s/AKfycbxKzRv_D9_KfViHuyzCIpxWpYWajyMONZhE4gMRYh-kqpQ6317zRrIvkVCzTLgDRf2W/exec',
+                    scriptUrl: 'https://script.google.com/macros/s/AKfycbz_qclTX6MXdrJTvR-YRwT_efiyUSGUUbTOA-BrW89Xp3Y0tXF-NICNaj2pr32akivY/exec',
                     addons: ['caaPreUsage', 'caaPost']
                 },
                 'Spirit_Mar2026': {
@@ -1674,7 +1691,7 @@
                 if (result.status === 'returning') {
                     participantId = result.participantId;
                     consent = 'on_file';
-                    // Returning participant &mdash; no consent gate needed
+                    showWelcomeBack();
                 } else if (result.status === 'new') {
                     participantId = null;
                     consent = null;
@@ -1833,9 +1850,16 @@
         });
         
         // ========== CONSENT GATE LOGIC ==========
+        function showWelcomeBack() {
+            const banner = document.getElementById('welcomeBanner');
+            banner.textContent = '✓ Welcome back — consent on file';
+            banner.classList.remove('hidden');
+            document.getElementById('surveyBody').classList.remove('consent-blocked');
+        }
+
         function showConsentGate() {
             document.getElementById('consentGate').classList.remove('hidden');
-            document.getElementById('surveyBody').classList.add('consent-blocked');
+            // surveyBody stays blocked — already set at load
         }
 
         function acceptConsent() {
@@ -2771,7 +2795,9 @@
         // ========== RESET ==========
         function resetForm() {
             // NOTE: sessionId, participantId, participantStatus, and consent are intentionally NOT cleared.
-            // They must persist across pre&rarr;post within the same session.
+            // They must persist across pre→post within the same session.
+            
+            // Keep welcome banner visible and survey unlocked if already consented
 
             // Clear addon selections
             addonValues = {};
