@@ -1095,6 +1095,7 @@
 
         <!-- Survey Body (blocked until consent in field mode) -->
         <div id="surveyBody">
+        <div id="surveyBodyStart"></div><!-- anchor for pre-session addon injection -->
 
         <!-- Global State-Focus Instruction -->
         <div class="state-instruction">
@@ -1967,7 +1968,7 @@
 
             // ── CAA addons ────────────────────────────────────────────────────
             caaPreUsage: {
-                insertAfter: 'setupSection',
+                insertAfter: 'surveyBodyStart',
                 timing: 'pre',
                 required: { pre: ['caaUsageCount', 'caaPrimaryReason', 'caaPromptedBy'] },
                 html: `
@@ -2121,15 +2122,6 @@
                     <div class="section-title" style="margin-top:24px;">Workplace</div>
 
                     <div class="addon-question-block">
-                        <div class="addon-question">How long did you use the chair?</div>
-                        <div class="addon-duration-row">
-                            <input type="number" class="addon-duration-input" id="caaDuration"
-                                   data-field="caaDuration" min="1" max="120" placeholder="&mdash;">
-                            <span class="addon-duration-label">minutes</span>
-                        </div>
-                    </div>
-
-                    <div class="addon-question-block">
                         <div class="addon-question">How ready do you feel to return to your work tasks right now?</div>
                         <div class="vas-slider-container">
                             <div class="vas-labels"><span>Not Ready</span><span>Fully Ready</span></div>
@@ -2190,7 +2182,7 @@
 
             // ── McLaren addons ─────────────────────────────────────────────────
             mclarenPreSection: {
-                insertAfter: 'setupSection',
+                insertAfter: 'surveyBodyStart',
                 timing: 'pre',
                 required: { pre: ['mclRole', 'mclUsageCount', 'mclPrimaryReason', 'mclPromptedBy'] },
                 html: `
@@ -2379,15 +2371,6 @@
             </div>
 
                     <div class="section-title" style="margin-top:24px;">Performance &amp; Recovery</div>
-
-                    <div class="addon-question-block">
-                        <div class="addon-question">How long did you use the chair?</div>
-                        <div class="addon-duration-row">
-                            <input type="number" class="addon-duration-input" id="mclDuration"
-                                   data-field="mclDuration" min="1" max="120" placeholder="&mdash;">
-                            <span class="addon-duration-label">minutes</span>
-                        </div>
-                    </div>
 
             <div class="addon-question-block">
                 <div class="addon-question">How likely are you to use Shiftwave again?</div>
