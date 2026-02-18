@@ -1250,7 +1250,7 @@
         <!-- Consent Gate (field mode only, new participants) -->
         <div id="consentGate" class="hidden">
             <p>Before participating, please review and accept the following:<br><br>
-            My responses will be collected and shared with Shiftwave in de-identified form for research and performance monitoring purposes.</p>
+            Your responses will be collected by Shiftwave and used for research and performance monitoring purposes. Your name will be replaced with an anonymous participant ID &mdash; no personally identifiable information will appear in any shared data or reports. Participation is voluntary and you may stop at any time without consequence. By checking the box below you confirm you understand and agree to these terms.</p>
             <label>
                 <input type="checkbox" id="consentCheck" onchange="document.getElementById('consentBtn').disabled = !this.checked;">
                 I agree to participate
@@ -2288,12 +2288,20 @@
 
                     <div class="addon-question-block">
                         <div class="addon-question">How ready do you feel to return to your work tasks right now?</div>
-                        <div class="vas-slider-container">
-                            <div class="vas-labels"><span>Not Ready</span><span>Fully Ready</span></div>
-                            <input type="range" class="vas-slider addon-engage-slider" id="caaReturnReady"
-                                   data-field="caaReturnReady" min="0" max="10" value="5">
-                            <div class="vas-value"><span id="caaReturnReadyValue">&mdash;</span></div>
+                        <div class="addon-nps-group" data-field="caaReturnReady">
+                            <button class="addon-nps-btn" data-value="0">0</button>
+                            <button class="addon-nps-btn" data-value="1">1</button>
+                            <button class="addon-nps-btn" data-value="2">2</button>
+                            <button class="addon-nps-btn" data-value="3">3</button>
+                            <button class="addon-nps-btn" data-value="4">4</button>
+                            <button class="addon-nps-btn" data-value="5">5</button>
+                            <button class="addon-nps-btn" data-value="6">6</button>
+                            <button class="addon-nps-btn" data-value="7">7</button>
+                            <button class="addon-nps-btn" data-value="8">8</button>
+                            <button class="addon-nps-btn" data-value="9">9</button>
+                            <button class="addon-nps-btn" data-value="10">10</button>
                         </div>
+                        <div class="addon-nps-labels"><span>Not Ready</span><span>Fully Ready</span></div>
                     </div>
 
             <div class="addon-question-block">
@@ -2767,9 +2775,6 @@
             addonValues = {};
             document.querySelectorAll('.addon-ss-btn.selected, .addon-nps-btn.selected, .addon-l5-btn.selected')
                 .forEach(b => b.classList.remove('selected'));
-            document.querySelectorAll('.addon-duration-input').forEach(el => el.value = '');
-            document.querySelectorAll('.addon-engage-slider').forEach(el => { el.value = 50; });
-            document.querySelectorAll('#caaReturnReadyValue').forEach(el => el.innerHTML = '&mdash;');
             // Reset conditionals
             const caaC = document.getElementById('caaConditional');
             if (caaC) caaC.classList.add('hidden');
