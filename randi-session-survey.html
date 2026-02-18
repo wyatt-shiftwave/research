@@ -1508,7 +1508,7 @@
         
         <!-- EmojiGrid (Affective) &mdash; Toet et al. (2018) validated instrument -->
         <div class="section" id="emojiGridSection">
-            <div class="section-title" style="text-align:center;">Tap the point that matches how you feel right now</div>
+            <div class="section-title" style="text-align:center;">Tap any spot inside the grid that best matches how you feel right now</div>
             
             <div class="grid-container">
                 <div class="emojigrid-wrapper">
@@ -1556,9 +1556,9 @@
 
         <!-- Optional Comment -->
         <div class="section">
-            <div class="section-title">Optional</div>
+            <div class="section-title" id="commentSectionTitle">What's motivating you to do a Shiftwave session right now?</div>
             <div class="comment-field">
-                <textarea id="comment" placeholder="What's motivating you to do a Shiftwave session right now?"></textarea>
+                <textarea id="comment" placeholder="Optional"></textarea>
             </div>
         </div>
     </div>
@@ -2218,7 +2218,7 @@
                 html: `
                 <div class="section addon-post-only hidden" id="addonItem_caaPost">
                     <div class="section-title">Your Experience</div>
-                    <div class="addon-section-description">Rate each statement about this session. (1 = Strongly disagree &mdash; 5 = Strongly agree)</div>
+                    <div class="addon-section-description">Rate each statement about this session.<br><span style="font-size:0.8em;color:#888;">(1 = Strongly disagree &mdash; 5 = Strongly agree)</span></div>
             <div class="addon-l5-item" data-field="caaAccept1">
                 <div class="addon-l5-question">I enjoyed this session</div>
                 <div class="addon-l5-options">
@@ -2477,7 +2477,7 @@
                 html: `
                 <div class="section addon-post-only hidden" id="addonItem_mclarenPost">
                     <div class="section-title">Your Experience</div>
-                    <div class="addon-section-description">Rate each statement about this session. (1 = Strongly disagree &mdash; 5 = Strongly agree)</div>
+                    <div class="addon-section-description">Rate each statement about this session.<br><span style="font-size:0.8em;color:#888;">(1 = Strongly disagree &mdash; 5 = Strongly agree)</span></div>
             <div class="addon-l5-item" data-field="mclAccept1">
                 <div class="addon-l5-question">I enjoyed this session</div>
                 <div class="addon-l5-options">
@@ -2873,11 +2873,11 @@
         
         // ========== TIMING-DEPENDENT COMMENT PLACEHOLDER ==========
         function updateCommentPlaceholder() {
-            const commentEl = document.getElementById('comment');
+            const titleEl = document.getElementById('commentSectionTitle');
             if (timing === 'pre') {
-                commentEl.placeholder = "What's motivating you to do a Shiftwave session right now?";
+                titleEl.textContent = "What's motivating you to do a Shiftwave session right now?";
             } else {
-                commentEl.placeholder = "Describe what this experience was like for you.";
+                titleEl.textContent = "Describe what this experience was like for you.";
             }
         }
         // Expose functions used by onclick attributes to global scope
