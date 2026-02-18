@@ -212,7 +212,7 @@
             border-left: 1px dashed #444444;
         }
         
-        /* Click marker â€” crosshair */
+        /* Click marker &mdash; crosshair */
         .marker {
             position: absolute;
             width: 20px;
@@ -286,7 +286,7 @@
             line-height: 0;
         }
         
-        /* Word labels removed â€” faces are self-explaining per Toet et al. (2018) */
+        /* Word labels removed &mdash; faces are self-explaining per Toet et al. (2018) */
         
         .grid-values {
             text-align: center;
@@ -1019,7 +1019,7 @@
             cursor: not-allowed;
         }
 
-        /* Survey body — blocked until consent given in field mode */
+        /* Survey body &mdash; blocked until consent given in field mode */
         #surveyBody.consent-blocked {
             pointer-events: none;
             opacity: 0.2;
@@ -1058,7 +1058,7 @@
                 </svg>
             </div>
             <h1>Session Check-In</h1>
-            <p>~60 seconds â€¢ All responses confidential</p>
+            <p>~60 seconds &bull; All responses confidential</p>
         </div>
         
         <!-- Setup -->
@@ -1113,7 +1113,7 @@
                         <span>Relaxed</span>
                     </div>
                     <input type="range" class="vas-slider" id="bodyTension" min="0" max="100" value="50">
-                    <div class="vas-value"><span id="bodyTensionValue">â€”</span></div>
+                    <div class="vas-value"><span id="bodyTensionValue">&mdash;</span></div>
                 </div>
             </div>
             
@@ -1125,7 +1125,7 @@
                         <span>Connected</span>
                     </div>
                     <input type="range" class="vas-slider" id="bodyConnection" min="0" max="100" value="50">
-                    <div class="vas-value"><span id="bodyConnectionValue">â€”</span></div>
+                    <div class="vas-value"><span id="bodyConnectionValue">&mdash;</span></div>
                 </div>
             </div>
         </div>
@@ -1207,7 +1207,7 @@
                 
                 <!-- Current value display -->
                 <div class="pain-value-display">
-                    <span id="painValueDisplay">â€”</span>
+                    <span id="painValueDisplay">&mdash;</span>
                 </div>
                 
                 <!-- Engagement prompt -->
@@ -1227,7 +1227,7 @@
                         <span>Alive & Energized</span>
                     </div>
                     <input type="range" class="vas-slider" id="energy" min="0" max="100" value="50">
-                    <div class="vas-value"><span id="energyValue">â€”</span></div>
+                    <div class="vas-value"><span id="energyValue">&mdash;</span></div>
                 </div>
             </div>
             
@@ -1239,7 +1239,7 @@
                         <span>Clear</span>
                     </div>
                     <input type="range" class="vas-slider" id="clarity" min="0" max="100" value="50">
-                    <div class="vas-value"><span id="clarityValue">â€”</span></div>
+                    <div class="vas-value"><span id="clarityValue">&mdash;</span></div>
                 </div>
             </div>
             
@@ -1251,7 +1251,7 @@
                         <span>Mentally Still</span>
                     </div>
                     <input type="range" class="vas-slider" id="mentalQuiet" min="0" max="100" value="50">
-                    <div class="vas-value"><span id="mentalQuietValue">â€”</span></div>
+                    <div class="vas-value"><span id="mentalQuietValue">&mdash;</span></div>
                 </div>
             </div>
             
@@ -1263,7 +1263,7 @@
                         <span>Wide Awake</span>
                     </div>
                     <input type="range" class="vas-slider" id="alertness" min="0" max="100" value="50">
-                    <div class="vas-value"><span id="alertnessValue">â€”</span></div>
+                    <div class="vas-value"><span id="alertnessValue">&mdash;</span></div>
                 </div>
             </div>
         </div>
@@ -1335,7 +1335,7 @@
             </div>
         </div>
         
-        <!-- EmojiGrid (Affective) â€” Toet et al. (2018) validated instrument -->
+        <!-- EmojiGrid (Affective) &mdash; Toet et al. (2018) validated instrument -->
         <div class="section" id="emojiGridSection">
             <div class="section-title" style="text-align:center;">Tap the point that matches how you feel right now</div>
             
@@ -1391,18 +1391,18 @@
             </div>
         </div>
     </div>
-    
-    <!-- Success message -->
-    <div class="container hidden" id="successContainer">
+
+    </div><!-- /surveyBody -->
+
+    <!-- Success screen (outside surveyBody so it's not blocked by consent or hidden with body) -->
+    <div class="hidden" id="successContainer">
         <div class="success-message">
-            <div class="checkmark">âœ“</div>
-            <h2>Response Recorded</h2>
+            <div class="checkmark">&#10003;</div>
+            <h2 id="successHeading">Check-In Recorded</h2>
             <p id="successDetails">Pre-session check-in complete</p>
-            <button class="reset-btn" onclick="resetForm()">Submit Another Response</button>
+            <button class="reset-btn" id="successBtn" onclick="resetForm()">Record Post-Session Check-In</button>
         </div>
     </div>
-    
-    </div><!-- /surveyBody -->
 
     <!-- Submit button -->
     <div class="submit-section">
@@ -1493,7 +1493,7 @@
                 if (result.status === 'returning') {
                     participantId = result.participantId;
                     consent = 'on_file';
-                    // Returning participant — no consent gate needed
+                    // Returning participant &mdash; no consent gate needed
                 } else if (result.status === 'new') {
                     participantId = null;
                     consent = null;
@@ -1503,7 +1503,7 @@
                 }
             } catch (err) {
                 console.error('Lookup error:', err);
-                // Non-blocking — fall through to internal-mode behavior
+                // Non-blocking &mdash; fall through to internal-mode behavior
                 if (!isFieldMode) {
                     participantStatus = 'internal';
                     consent = 'internal';
@@ -1745,7 +1745,7 @@
             if (status.complete) {
                 submitBtn.classList.remove('incomplete');
                 submitBtn.classList.add('ready');
-                completionStatus.textContent = 'Ready to submit âœ“';
+                completionStatus.textContent = 'Ready to submit &#10003;';
                 completionStatus.classList.add('complete');
             } else {
                 submitBtn.classList.add('incomplete');
@@ -1873,11 +1873,23 @@
                     participantId = result.participantId;
                 }
 
-                document.getElementById('surveyContainer').classList.add('hidden');
-                document.getElementById('successContainer').classList.remove('hidden');
-                document.getElementById('successDetails').textContent = 
-                    `${timing === 'pre' ? 'Pre' : 'Post'}-session check-in recorded`;
+                // Hide the form, show the success screen
+                document.getElementById('setupSection').classList.add('hidden');
+                document.getElementById('consentGate').classList.add('hidden');
+                document.getElementById('surveyBody').classList.add('hidden');
                 document.querySelector('.submit-section').classList.add('hidden');
+                document.getElementById('surveyContainer').classList.remove('hidden'); // ensure outer stays visible
+                document.getElementById('successContainer').classList.remove('hidden');
+
+                // Dynamic success copy based on timing
+                const isPost = timing === 'post';
+                document.getElementById('successHeading').textContent = isPost ? 'Session Complete' : 'Pre-Session Recorded';
+                document.getElementById('successDetails').textContent = isPost
+                    ? 'Post-session check-in recorded. Your data is saved.'
+                    : 'Pre-session check-in recorded. Ready for your session.';
+                document.getElementById('successBtn').textContent = isPost
+                    ? 'Start New Session'
+                    : 'Record Post-Session Check-In';
                 
             } catch (error) {
                 console.error('Submit error:', error);
@@ -1899,7 +1911,7 @@
                     <div class="vas-slider-container">
                         <div class="vas-labels"><span>Not Ready</span><span>Fully Ready</span></div>
                         <input type="range" class="vas-slider" id="addonMentalReadiness" min="0" max="100" value="50">
-                        <div class="vas-value"><span id="addonMentalReadinessValue">—</span></div>
+                        <div class="vas-value"><span id="addonMentalReadinessValue">&mdash;</span></div>
                     </div>
                 </div>`
             },
@@ -1913,7 +1925,7 @@
                     <div class="vas-slider-container">
                         <div class="vas-labels"><span>None</span><span>Severe</span></div>
                         <input type="range" class="vas-slider" id="addonSoreness" min="0" max="100" value="50">
-                        <div class="vas-value"><span id="addonSorenessValue">—</span></div>
+                        <div class="vas-value"><span id="addonSorenessValue">&mdash;</span></div>
                     </div>
                 </div>`
             },
@@ -1927,7 +1939,7 @@
                     <div class="vas-slider-container">
                         <div class="vas-labels"><span>None</span><span>Severe</span></div>
                         <input type="range" class="vas-slider" id="addonMenstrual" min="0" max="100" value="50">
-                        <div class="vas-value"><span id="addonMenstrualValue">—</span></div>
+                        <div class="vas-value"><span id="addonMenstrualValue">&mdash;</span></div>
                     </div>
                 </div>`
             },
@@ -1960,7 +1972,7 @@
                     <div class="vas-slider-container">
                         <div class="vas-labels"><span>Not Ready</span><span>Peak Ready</span></div>
                         <input type="range" class="vas-slider" id="addonPerfReadiness" min="0" max="100" value="50">
-                        <div class="vas-value"><span id="addonPerfReadinessValue">—</span></div>
+                        <div class="vas-value"><span id="addonPerfReadinessValue">&mdash;</span></div>
                     </div>
                 </div>`
             },
@@ -1976,7 +1988,7 @@
                         <div class="vas-slider-container">
                             <div class="vas-labels"><span>Definitely Not</span><span>Definitely Yes</span></div>
                             <input type="range" class="vas-slider" id="addonWouldUseAgain" min="0" max="100" value="50">
-                            <div class="vas-value"><span id="addonWouldUseAgainValue">—</span></div>
+                            <div class="vas-value"><span id="addonWouldUseAgainValue">&mdash;</span></div>
                         </div>
                     </div>
                 </div>`
@@ -1993,7 +2005,7 @@
                         <div class="vas-slider-container">
                             <div class="vas-labels"><span>Rarely</span><span>Daily</span></div>
                             <input type="range" class="vas-slider" id="addonUsageFrequency" min="0" max="100" value="50">
-                            <div class="vas-value"><span id="addonUsageFrequencyValue">—</span></div>
+                            <div class="vas-value"><span id="addonUsageFrequencyValue">&mdash;</span></div>
                         </div>
                     </div>
                 </div>`
@@ -2057,7 +2069,7 @@
         // ========== RESET ==========
         function resetForm() {
             // NOTE: sessionId, participantId, participantStatus, and consent are intentionally NOT cleared.
-            // They must persist across pre→post within the same session.
+            // They must persist across pre&rarr;post within the same session.
             formData = {
                 valence: null, arousal: null,
                 bodyTension: 50, bodyTensionEngaged: false,
@@ -2080,13 +2092,13 @@
             // Reset all VAS sliders
             vasSliders.forEach(id => {
                 document.getElementById(id).value = 50;
-                document.getElementById(id + 'Value').textContent = 'â€”';
+                document.getElementById(id + 'Value').textContent = '&mdash;';
                 document.getElementById('vasItem_' + id).classList.remove('engaged');
             });
             
             // Reset pain VAS
             painSlider.value = 50;
-            painValueDisplay.textContent = 'â€”';
+            painValueDisplay.textContent = '&mdash;';
             painContainer.classList.remove('engaged');
             painPrompt.style.display = '';
             
@@ -2097,7 +2109,9 @@
             
             setTiming(timing === 'pre' ? 'post' : 'pre');
             
-            document.getElementById('surveyContainer').classList.remove('hidden');
+            // Show the form sections (name + protocol are intentionally preserved)
+            document.getElementById('setupSection').classList.remove('hidden');
+            document.getElementById('surveyBody').classList.remove('hidden');
             document.getElementById('successContainer').classList.add('hidden');
             document.querySelector('.submit-section').classList.remove('hidden');
             
@@ -2173,14 +2187,14 @@
                 <div class="modal-example">
                     <div class="modal-example-title">What the faces show</div>
                     <div class="modal-axis-row">
-                        <span class="axis-arrow">â†</span> Left faces feel unpleasant <span class="axis-arrow">â†’</span> Right faces feel pleasant
+                        <span class="axis-arrow">&larr;</span> Left faces feel unpleasant <span class="axis-arrow">&rarr;</span> Right faces feel pleasant
                     </div>
                     <div class="modal-axis-row">
-                        <span class="axis-arrow">â†“</span> Bottom faces are low intensity <span class="axis-arrow">â†‘</span> Top faces are high intensity
+                        <span class="axis-arrow">&harr;</span> Bottom faces are low intensity <span class="axis-arrow">&uarr;</span> Top faces are high intensity
                     </div>
                 </div>
                 
-                <p>Tap any spot inside the grid that best matches how you feel. The faces around the edges are just guides â€” tap within the grid area to mark your response.</p>
+                <p>Tap any spot inside the grid that best matches how you feel. The faces around the edges are just guides &mdash; tap within the grid area to mark your response.</p>
                 
                 <div class="modal-example">
                     <div class="modal-example-title">Examples</div>
