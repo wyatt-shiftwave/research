@@ -966,6 +966,171 @@
         .modal-got-it:hover {
             background: #444;
         }
+        /* ========== ADDON QUESTION COMPONENTS ========== */
+
+        /* Shared question text — matches .likert-question */
+        .addon-question {
+            font-size: 0.9rem;
+            color: #ccc;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        /* Small descriptor text below a section title */
+        .addon-section-description {
+            font-size: 0.78rem;
+            color: #666;
+            margin-bottom: 20px;
+            margin-top: -8px;
+        }
+
+        /* Wrapper giving breathing room between questions */
+        .addon-question-block {
+            margin-bottom: 24px;
+        }
+        .addon-question-block:last-child {
+            margin-bottom: 0;
+        }
+
+        /* ── Single-select: full-width stacked buttons ── */
+        .addon-ss-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .addon-ss-btn {
+            width: 100%;
+            text-align: left;
+            padding: 11px 14px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #888;
+            font-size: 0.85rem;
+            font-family: inherit;
+            line-height: 1.4;
+            cursor: pointer;
+            transition: border-color 0.15s, color 0.15s, background 0.15s;
+        }
+
+        .addon-ss-btn:hover {
+            border-color: #555;
+            color: #ccc;
+        }
+
+        .addon-ss-btn.selected {
+            background: #4ade80;
+            border-color: #4ade80;
+            color: #000;
+            font-weight: 600;
+        }
+
+        /* ── Likert-5 (acceptability): 5 equal-width buttons, matches STAI row ── */
+        .addon-l5-item {
+            margin-bottom: 20px;
+        }
+        .addon-l5-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .addon-l5-question {
+            font-size: 0.9rem;
+            color: #ccc;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .addon-l5-options {
+            display: flex;
+            gap: 8px;
+        }
+
+        .addon-l5-btn {
+            flex: 1;
+            padding: 10px 4px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #888;
+            font-size: 0.7rem;
+            font-family: inherit;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .addon-l5-btn:hover {
+            border-color: #555;
+        }
+
+        .addon-l5-btn.selected {
+            background: #4ade80;
+            border-color: #4ade80;
+            color: #000;
+            font-weight: 600;
+        }
+
+        .addon-l5-scale-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            color: #444;
+            margin-top: 5px;
+        }
+
+        /* ── NPS (0-10): tight equal-width row ── */
+        .addon-nps-group {
+            display: flex;
+            gap: 4px;
+        }
+
+        .addon-nps-btn {
+            flex: 1;
+            padding: 10px 2px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #888;
+            font-size: 0.8rem;
+            font-family: inherit;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            min-width: 0;
+        }
+
+        .addon-nps-btn:hover {
+            border-color: #555;
+        }
+
+        .addon-nps-btn.selected {
+            background: #4ade80;
+            border-color: #4ade80;
+            color: #000;
+            font-weight: 600;
+        }
+
+        .addon-nps-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            color: #555;
+            margin-top: 6px;
+        }
+
+        /* ── Conditional section (returns-only questions) ── */
+        .addon-conditional {
+            border-top: 1px dashed #2a2a2a;
+            padding-top: 20px;
+            margin-top: 4px;
+        }
+
+        /* ── VAS engage-slider (return readiness etc.) ── */
+        .addon-engage-slider {
+            /* inherits .vas-slider styles */
+        }
+
         /* ========== CONSENT GATE ========== */
         #consentGate {
             background: #151515;
