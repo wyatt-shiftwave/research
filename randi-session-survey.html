@@ -968,7 +968,7 @@
         }
         /* ========== ADDON QUESTION COMPONENTS ========== */
 
-        /* Shared question text — matches .likert-question */
+        /* Shared question text â€” matches .likert-question */
         .addon-question {
             font-size: 0.9rem;
             color: #ccc;
@@ -992,7 +992,7 @@
             margin-bottom: 0;
         }
 
-        /* ── Single-select: full-width stacked buttons ── */
+        /* â”€â”€ Single-select: full-width stacked buttons â”€â”€ */
         .addon-ss-group {
             display: flex;
             flex-direction: column;
@@ -1026,7 +1026,7 @@
             font-weight: 600;
         }
 
-        /* ── Likert-5 (acceptability): 5 equal-width buttons, matches STAI row ── */
+        /* â”€â”€ Likert-5 (acceptability): 5 equal-width buttons, matches STAI row â”€â”€ */
         .addon-l5-item {
             margin-bottom: 20px;
         }
@@ -1079,7 +1079,7 @@
             margin-top: 5px;
         }
 
-        /* ── NPS (0-10): tight equal-width row ── */
+        /* â”€â”€ NPS (0-10): tight equal-width row â”€â”€ */
         .addon-nps-group {
             display: flex;
             gap: 4px;
@@ -1119,14 +1119,14 @@
             margin-top: 6px;
         }
 
-        /* ── Conditional section (returns-only questions) ── */
+        /* â”€â”€ Conditional section (returns-only questions) â”€â”€ */
         .addon-conditional {
             border-top: 1px dashed #2a2a2a;
             padding-top: 20px;
             margin-top: 4px;
         }
 
-        /* ── VAS engage-slider (return readiness etc.) ── */
+        /* â”€â”€ VAS engage-slider (return readiness etc.) â”€â”€ */
         .addon-engage-slider {
             /* inherits .vas-slider styles */
         }
@@ -1250,7 +1250,12 @@
         <!-- Consent Gate (field mode only, new participants) -->
         <div id="consentGate" class="hidden">
             <p>Before participating, please review and accept the following:<br><br>
-            Your responses will be collected by Shiftwave and used for research and performance monitoring purposes. Your name will be replaced with an anonymous participant ID &mdash; no personally identifiable information will appear in any shared data or reports. Participation is voluntary and you may stop at any time without consequence. By checking the box below you confirm you understand and agree to these terms.</p>
+            <strong>Data controller:</strong> Shiftwave is responsible for the collection and use of your data.<br><br>
+            Your responses will be collected by Shiftwave and used for research and performance monitoring purposes. Your name will be replaced with an anonymous participant ID &mdash; no personally identifiable information will appear in any shared data or reports.<br><br>
+            <strong>Sharing with your organization:</strong> Aggregated, de-identified results may be shared with the organization hosting this study for the purpose of evaluating Shiftwave.<br><br>
+            <strong>Research and publication:</strong> Data may also be used in aggregate, de-identified form for Shiftwave&rsquo;s internal research and, potentially, future publication. No individual will be identifiable in any published output.<br><br>
+            <strong>Data retention:</strong> Data will be retained for a minimum of 2 years and may be held longer for research continuity. You may request deletion of your record at any time by contacting privacy@shiftwave.com.<br><br>
+            Participation is voluntary and you may stop at any time without consequence. By checking the box below you confirm you understand and agree to these terms.</p>
             <label>
                 <input type="checkbox" id="consentCheck" onchange="document.getElementById('consentBtn').disabled = !this.checked;">
                 I agree to participate
@@ -1673,17 +1678,14 @@
                 } else if (result.status === 'new') {
                     participantId = null;
                     consent = null;
-                    if (isFieldMode) {
-                        showConsentGate();
-                    }
+                    showConsentGate();
                 }
             } catch (err) {
                 console.error('Lookup error:', err);
-                // Non-blocking &mdash; fall through to internal-mode behavior
-                if (!isFieldMode) {
-                    participantStatus = 'internal';
-                    consent = 'internal';
-                }
+                // Non-blocking — fall through, but still require consent
+                participantStatus = 'new';
+                consent = null;
+                showConsentGate();
             }
         }
 
@@ -2026,7 +2028,7 @@
                 participantName: participantName,
                 deploymentId: deploymentId,
                 sessionId: sessionId,
-                consent: consent || (isFieldMode ? 'yes' : 'internal'),
+                consent: consent || 'yes',
                 timestamp: new Date().toISOString(),
                 protocol: protocol,
                 timing: timing,
@@ -2093,7 +2095,7 @@
         
         // ========== ADDON REGISTRY ==========
         const ADDON_REGISTRY = {
-            // ── Individual addons (Spirit / general) ─────────────────────────
+            // â”€â”€ Individual addons (Spirit / general) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             mentalReadiness: {
                 insertAfter: 'vasItem_mentalQuiet', timing: 'both', fieldName: 'addonMentalReadiness',
                 html: `
@@ -2131,7 +2133,7 @@
                 </div>`
             },
 
-            // ── CAA addons ────────────────────────────────────────────────────
+            // â”€â”€ CAA addons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             caaPreUsage: {
                 insertAfter: 'surveyBodyStart',
                 timing: 'pre',
@@ -2353,7 +2355,7 @@
                 </div>`
             },
 
-            // ── McLaren addons ─────────────────────────────────────────────────
+            // â”€â”€ McLaren addons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             mclarenPreSection: {
                 insertAfter: 'surveyBodyStart',
                 timing: 'pre',
@@ -2619,7 +2621,7 @@
             }
         };
 
-        // REGISTRY END — injection below
+        // REGISTRY END â€” injection below
 
         // ========== ADDON INJECTION ==========
         function injectAddons() {
