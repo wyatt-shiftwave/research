@@ -212,7 +212,7 @@
             border-left: 1px dashed #444444;
         }
         
-        /* Click marker — crosshair */
+        /* Click marker â€” crosshair */
         .marker {
             position: absolute;
             width: 20px;
@@ -286,7 +286,7 @@
             line-height: 0;
         }
         
-        /* Word labels removed — faces are self-explaining per Toet et al. (2018) */
+        /* Word labels removed â€” faces are self-explaining per Toet et al. (2018) */
         
         .grid-values {
             text-align: center;
@@ -966,6 +966,65 @@
         .modal-got-it:hover {
             background: #444;
         }
+        /* ========== CONSENT GATE ========== */
+        #consentGate {
+            background: #151515;
+            border: 1px solid #555;
+            border-radius: 12px;
+            padding: 28px 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #consentGate p {
+            color: #ccc;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        #consentGate label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #aaa;
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        #consentGate input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #4ade80;
+            cursor: pointer;
+        }
+
+        #consentBtn {
+            padding: 12px 32px;
+            background: #4ade80;
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        #consentBtn:disabled {
+            background: #333;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        /* Survey body — blocked until consent given in field mode */
+        #surveyBody.consent-blocked {
+            pointer-events: none;
+            opacity: 0.2;
+            user-select: none;
+        }
     </style>
 </head>
 <body>
@@ -999,15 +1058,15 @@
                 </svg>
             </div>
             <h1>Session Check-In</h1>
-            <p>~60 seconds • All responses confidential</p>
+            <p>~60 seconds â€¢ All responses confidential</p>
         </div>
         
         <!-- Setup -->
-        <div class="setup-section">
+        <div class="setup-section" id="setupSection">
             <div class="field-row">
                 <div class="field">
-                    <label>Your Initials</label>
-                    <input type="text" id="userId" placeholder="e.g., WR" maxlength="4" autocomplete="off">
+                    <label>Your Name</label>
+                    <input type="text" id="participantName" placeholder="First Last" autocomplete="off" spellcheck="false">
                 </div>
                 <div class="field">
                     <label>Protocol</label>
@@ -1023,6 +1082,20 @@
             </div>
         </div>
         
+        <!-- Consent Gate (field mode only, new participants) -->
+        <div id="consentGate" class="hidden">
+            <p>Before participating, please review and accept the following:<br><br>
+            My responses will be collected and shared with Shiftwave in de-identified form for research and performance monitoring purposes.</p>
+            <label>
+                <input type="checkbox" id="consentCheck" onchange="document.getElementById('consentBtn').disabled = !this.checked;">
+                I agree to participate
+            </label>
+            <button id="consentBtn" disabled onclick="acceptConsent()">Continue to Survey</button>
+        </div>
+
+        <!-- Survey Body (blocked until consent in field mode) -->
+        <div id="surveyBody">
+
         <!-- Global State-Focus Instruction -->
         <div class="state-instruction">
             Answer each question based only on how you feel <strong>right now</strong>, in this moment.
@@ -1040,7 +1113,7 @@
                         <span>Relaxed</span>
                     </div>
                     <input type="range" class="vas-slider" id="bodyTension" min="0" max="100" value="50">
-                    <div class="vas-value"><span id="bodyTensionValue">—</span></div>
+                    <div class="vas-value"><span id="bodyTensionValue">â€”</span></div>
                 </div>
             </div>
             
@@ -1052,13 +1125,13 @@
                         <span>Connected</span>
                     </div>
                     <input type="range" class="vas-slider" id="bodyConnection" min="0" max="100" value="50">
-                    <div class="vas-value"><span id="bodyConnectionValue">—</span></div>
+                    <div class="vas-value"><span id="bodyConnectionValue">â€”</span></div>
                 </div>
             </div>
         </div>
         
         <!-- Section 2: Pain VAS (Visual Analog Scale) -->
-        <div class="section">
+        <div class="section" id="painSection">
             <div class="section-title">Pain</div>
             <div class="vas-question">Rate your pain level right now</div>
             
@@ -1134,7 +1207,7 @@
                 
                 <!-- Current value display -->
                 <div class="pain-value-display">
-                    <span id="painValueDisplay">—</span>
+                    <span id="painValueDisplay">â€”</span>
                 </div>
                 
                 <!-- Engagement prompt -->
@@ -1154,7 +1227,7 @@
                         <span>Alive & Energized</span>
                     </div>
                     <input type="range" class="vas-slider" id="energy" min="0" max="100" value="50">
-                    <div class="vas-value"><span id="energyValue">—</span></div>
+                    <div class="vas-value"><span id="energyValue">â€”</span></div>
                 </div>
             </div>
             
@@ -1166,7 +1239,7 @@
                         <span>Clear</span>
                     </div>
                     <input type="range" class="vas-slider" id="clarity" min="0" max="100" value="50">
-                    <div class="vas-value"><span id="clarityValue">—</span></div>
+                    <div class="vas-value"><span id="clarityValue">â€”</span></div>
                 </div>
             </div>
             
@@ -1178,7 +1251,7 @@
                         <span>Mentally Still</span>
                     </div>
                     <input type="range" class="vas-slider" id="mentalQuiet" min="0" max="100" value="50">
-                    <div class="vas-value"><span id="mentalQuietValue">—</span></div>
+                    <div class="vas-value"><span id="mentalQuietValue">â€”</span></div>
                 </div>
             </div>
             
@@ -1190,7 +1263,7 @@
                         <span>Wide Awake</span>
                     </div>
                     <input type="range" class="vas-slider" id="alertness" min="0" max="100" value="50">
-                    <div class="vas-value"><span id="alertnessValue">—</span></div>
+                    <div class="vas-value"><span id="alertnessValue">â€”</span></div>
                 </div>
             </div>
         </div>
@@ -1198,7 +1271,7 @@
         <!-- EmojiGrid moved to after STAI-6 -->
         
         <!-- Section 5: STAI-6 (Validated Instrument) -->
-        <div class="section">
+        <div class="section" id="staiSection">
             <div class="section-title">State Assessment (STAI-6)</div>
             
             <div class="likert-item" data-item="stai_calm">
@@ -1262,7 +1335,7 @@
             </div>
         </div>
         
-        <!-- EmojiGrid (Affective) — Toet et al. (2018) validated instrument -->
+        <!-- EmojiGrid (Affective) â€” Toet et al. (2018) validated instrument -->
         <div class="section" id="emojiGridSection">
             <div class="section-title" style="text-align:center;">Tap the point that matches how you feel right now</div>
             
@@ -1322,13 +1395,15 @@
     <!-- Success message -->
     <div class="container hidden" id="successContainer">
         <div class="success-message">
-            <div class="checkmark">✓</div>
+            <div class="checkmark">âœ“</div>
             <h2>Response Recorded</h2>
             <p id="successDetails">Pre-session check-in complete</p>
             <button class="reset-btn" onclick="resetForm()">Submit Another Response</button>
         </div>
     </div>
     
+    </div><!-- /surveyBody -->
+
     <!-- Submit button -->
     <div class="submit-section">
         <div class="completion-status" id="completionStatus">Complete all items to submit</div>
@@ -1338,8 +1413,35 @@
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         // ========== CONFIGURATION ==========
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyrVZk021RPCQw-pMDvTbz6CNKgy_kpwRgKIcdVpq1VYzylSPaCfdWtzeHRMyAhr665pw/exec';
-        
+        const CONFIG = {
+            SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwRxN9SYtjDMwAUcEEDs9w2UYT3o-Pq28b-JygOnu7k9yHVY0fyfuzVv5DG0u7vaGdW/exec',
+            DEPLOYMENT_PRESETS: {
+                'CAA_Feb2026':    { addons: ['mentalReadiness'] },
+                'Spirit_Mar2026': { addons: ['menstrual', 'soreness'] },
+                'McLaren_Mar2026':{ addons: ['role', 'performanceReadiness', 'wouldUseAgain', 'usageFrequency'] }
+            }
+        };
+
+        // ========== URL PARAMS ==========
+        const urlParams = new URLSearchParams(window.location.search);
+        const deploymentId = urlParams.get('deployment') || '';
+        const isFieldMode = deploymentId !== '';
+        const activeAddons = isFieldMode
+            ? (CONFIG.DEPLOYMENT_PRESETS[deploymentId]?.addons || [])
+            : [];
+
+        // ========== SESSION ID ==========
+        if (!sessionStorage.getItem('sfi_session_id')) {
+            const id = (crypto.randomUUID)
+                ? crypto.randomUUID()
+                : 'xxxx-xxxx-4xxx-yxxx'.replace(/[xy]/g, c => {
+                    const r = Math.random() * 16 | 0;
+                    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+                  });
+            sessionStorage.setItem('sfi_session_id', id);
+        }
+        const sessionId = sessionStorage.getItem('sfi_session_id');
+
         // ========== STATE ==========
         let formData = {
             valence: null,
@@ -1370,7 +1472,45 @@
         };
         
         let timing = 'pre';
+
+        // ========== PARTICIPANT STATE ==========
+        let participantId = null;
+        let participantStatus = null; // 'new' | 'returning'
+        let consent = null;           // 'yes' | 'on_file'
         
+        // ========== PARTICIPANT LOOKUP ==========
+        async function lookupParticipant(name) {
+            if (!name) return;
+            try {
+                const res = await fetch(CONFIG.SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    redirect: 'follow',
+                    body: JSON.stringify({ action: 'lookup', participantName: name, deploymentId })
+                });
+                const result = await res.json();
+                participantStatus = result.status;
+                if (result.status === 'returning') {
+                    participantId = result.participantId;
+                    consent = 'on_file';
+                    // Returning participant — no consent gate needed
+                } else if (result.status === 'new') {
+                    participantId = null;
+                    consent = null;
+                    if (isFieldMode) {
+                        showConsentGate();
+                    }
+                }
+            } catch (err) {
+                console.error('Lookup error:', err);
+                // Non-blocking — fall through to internal-mode behavior
+                if (!isFieldMode) {
+                    participantStatus = 'internal';
+                    consent = 'internal';
+                }
+            }
+        }
+
         // ========== EMOJI GRID ==========
         const grid = document.getElementById('emojiGrid');
         const marker = document.getElementById('marker');
@@ -1514,6 +1654,19 @@
             updatePainValue();
         });
         
+        // ========== CONSENT GATE LOGIC ==========
+        function showConsentGate() {
+            document.getElementById('consentGate').classList.remove('hidden');
+            document.getElementById('surveyBody').classList.add('consent-blocked');
+        }
+
+        function acceptConsent() {
+            consent = 'yes';
+            document.getElementById('consentGate').classList.add('hidden');
+            document.getElementById('surveyBody').classList.remove('consent-blocked');
+        }
+        window.acceptConsent = acceptConsent;
+
         // ========== STAI-6 LIKERT ==========
         document.querySelectorAll('.likert-item').forEach(item => {
             const itemName = item.dataset.item;
@@ -1534,6 +1687,7 @@
                 btn.classList.toggle('active', btn.dataset.timing === value);
             });
             updateCommentPlaceholder();
+            updateAddonVisibility();
         }
         
         // ========== PROGRESS ==========
@@ -1543,9 +1697,9 @@
             const missing = [];
             
             // Setup fields
-            const userId = document.getElementById('userId').value.trim();
+            const participantName = document.getElementById('participantName').value.trim();
             const protocol = document.getElementById('protocol').value.trim();
-            if (!userId) missing.push({ type: 'setup', id: 'userId', label: 'Initials' });
+            if (!participantName) missing.push({ type: 'setup', id: 'participantName', label: 'Name' });
             if (!protocol) missing.push({ type: 'setup', id: 'protocol', label: 'Protocol' });
             
             // EmojiGrid
@@ -1591,7 +1745,7 @@
             if (status.complete) {
                 submitBtn.classList.remove('incomplete');
                 submitBtn.classList.add('ready');
-                completionStatus.textContent = 'Ready to submit ✓';
+                completionStatus.textContent = 'Ready to submit âœ“';
                 completionStatus.classList.add('complete');
             } else {
                 submitBtn.classList.add('incomplete');
@@ -1665,7 +1819,7 @@
                 return;
             }
             
-            const userId = document.getElementById('userId').value.trim().toUpperCase();
+            const participantName = document.getElementById('participantName').value.trim();
             const protocol = document.getElementById('protocol').value.trim();
             const comment = document.getElementById('comment').value.trim();
             
@@ -1676,8 +1830,12 @@
             submitBtn.textContent = 'Submitting...';
             
             const payload = {
+                action: 'submit',
+                participantName: participantName,
+                deploymentId: deploymentId,
+                sessionId: sessionId,
+                consent: consent || (isFieldMode ? 'yes' : 'internal'),
                 timestamp: new Date().toISOString(),
-                userId: userId,
                 protocol: protocol,
                 timing: timing,
                 valence: formData.valence,
@@ -1697,21 +1855,28 @@
                 stai_worried: formData.stai_worried,
                 stai6_sum: staiScore.sum,
                 stai20_equivalent: staiScore.stai20,
-                comment: comment
+                comment: comment,
+                addons: buildAddonsPayload()
             };
             
             try {
-                await fetch(GOOGLE_SCRIPT_URL, {
+                const res = await fetch(CONFIG.SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'no-cors',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    redirect: 'follow',
                     body: JSON.stringify(payload)
                 });
+                const result = await res.json();
                 
+                // Store returned participant ID for post-session
+                if (result.participantId) {
+                    participantId = result.participantId;
+                }
+
                 document.getElementById('surveyContainer').classList.add('hidden');
                 document.getElementById('successContainer').classList.remove('hidden');
                 document.getElementById('successDetails').textContent = 
-                    `${timing === 'pre' ? 'Pre' : 'Post'}-session check-in recorded for ${userId}`;
+                    `${timing === 'pre' ? 'Pre' : 'Post'}-session check-in recorded`;
                 document.querySelector('.submit-section').classList.add('hidden');
                 
             } catch (error) {
@@ -1722,8 +1887,177 @@
             }
         }
         
+        // ========== ADDON REGISTRY ==========
+        const ADDON_REGISTRY = {
+            mentalReadiness: {
+                insertAfter: 'vasItem_mentalQuiet',
+                timing: 'both',
+                fieldName: 'addonMentalReadiness',
+                html: `
+                <div class="vas-item addon-item" id="addonItem_mentalReadiness">
+                    <div class="vas-question">How mentally ready do you feel right now?</div>
+                    <div class="vas-slider-container">
+                        <div class="vas-labels"><span>Not Ready</span><span>Fully Ready</span></div>
+                        <input type="range" class="vas-slider" id="addonMentalReadiness" min="0" max="100" value="50">
+                        <div class="vas-value"><span id="addonMentalReadinessValue">—</span></div>
+                    </div>
+                </div>`
+            },
+            soreness: {
+                insertAfter: 'painSection',
+                timing: 'both',
+                fieldName: 'addonSoreness',
+                html: `
+                <div class="vas-item addon-item" id="addonItem_soreness">
+                    <div class="vas-question">Rate your current muscle soreness.</div>
+                    <div class="vas-slider-container">
+                        <div class="vas-labels"><span>None</span><span>Severe</span></div>
+                        <input type="range" class="vas-slider" id="addonSoreness" min="0" max="100" value="50">
+                        <div class="vas-value"><span id="addonSorenessValue">—</span></div>
+                    </div>
+                </div>`
+            },
+            menstrual: {
+                insertAfter: 'painSection',
+                timing: 'both',
+                fieldName: 'addonMenstrual',
+                html: `
+                <div class="vas-item addon-item" id="addonItem_menstrual">
+                    <div class="vas-question">Rate the severity of menstrual cycle related symptoms you're experiencing right now.</div>
+                    <div class="vas-slider-container">
+                        <div class="vas-labels"><span>None</span><span>Severe</span></div>
+                        <input type="range" class="vas-slider" id="addonMenstrual" min="0" max="100" value="50">
+                        <div class="vas-value"><span id="addonMenstrualValue">—</span></div>
+                    </div>
+                </div>`
+            },
+            role: {
+                insertAfter: 'setupSection',
+                timing: 'pre',
+                fieldName: 'addonRole',
+                html: `
+                <div class="section addon-item" id="addonItem_role">
+                    <div class="section-title">Your Role</div>
+                    <div class="field">
+                        <select id="addonRole" style="width:100%;padding:12px;background:#0a0a0a;border:1px solid #333;border-radius:8px;color:#fff;font-size:1rem;font-family:inherit;">
+                            <option value="">Select your role</option>
+                            <option value="driver">Driver</option>
+                            <option value="engineer">Engineer</option>
+                            <option value="mechanic">Mechanic</option>
+                            <option value="management">Management</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>`
+            },
+            performanceReadiness: {
+                insertAfter: 'vasItem_alertness',
+                timing: 'both',
+                fieldName: 'addonPerfReadiness',
+                html: `
+                <div class="vas-item addon-item" id="addonItem_performanceReadiness">
+                    <div class="vas-question">How ready do you feel to perform at your best right now?</div>
+                    <div class="vas-slider-container">
+                        <div class="vas-labels"><span>Not Ready</span><span>Peak Ready</span></div>
+                        <input type="range" class="vas-slider" id="addonPerfReadiness" min="0" max="100" value="50">
+                        <div class="vas-value"><span id="addonPerfReadinessValue">—</span></div>
+                    </div>
+                </div>`
+            },
+            wouldUseAgain: {
+                insertAfter: 'staiSection',
+                timing: 'post',
+                fieldName: 'addonWouldUseAgain',
+                html: `
+                <div class="section addon-item addon-post-only hidden" id="addonItem_wouldUseAgain">
+                    <div class="section-title">Session Feedback</div>
+                    <div class="vas-item">
+                        <div class="vas-question">Would you use Shiftwave again?</div>
+                        <div class="vas-slider-container">
+                            <div class="vas-labels"><span>Definitely Not</span><span>Definitely Yes</span></div>
+                            <input type="range" class="vas-slider" id="addonWouldUseAgain" min="0" max="100" value="50">
+                            <div class="vas-value"><span id="addonWouldUseAgainValue">—</span></div>
+                        </div>
+                    </div>
+                </div>`
+            },
+            usageFrequency: {
+                insertAfter: 'staiSection',
+                timing: 'post',
+                fieldName: 'addonUsageFrequency',
+                html: `
+                <div class="section addon-item addon-post-only hidden" id="addonItem_usageFrequency">
+                    <div class="section-title">Usage Preference</div>
+                    <div class="vas-item">
+                        <div class="vas-question">How often would you want to use Shiftwave?</div>
+                        <div class="vas-slider-container">
+                            <div class="vas-labels"><span>Rarely</span><span>Daily</span></div>
+                            <input type="range" class="vas-slider" id="addonUsageFrequency" min="0" max="100" value="50">
+                            <div class="vas-value"><span id="addonUsageFrequencyValue">—</span></div>
+                        </div>
+                    </div>
+                </div>`
+            }
+        };
+
+        // ========== ADDON INJECTION ==========
+        function injectAddons() {
+            activeAddons.forEach(addonKey => {
+                const addon = ADDON_REGISTRY[addonKey];
+                if (!addon) return;
+                const anchorEl = document.getElementById(addon.insertAfter);
+                if (!anchorEl) return;
+                const wrapper = document.createElement('div');
+                wrapper.innerHTML = addon.html.trim();
+                const el = wrapper.firstChild;
+                anchorEl.parentNode.insertBefore(el, anchorEl.nextSibling);
+
+                // Wire up VAS slider if present
+                const slider = el.querySelector('input[type="range"]');
+                const valueDisplay = el.querySelector('span[id$="Value"]');
+                if (slider && valueDisplay) {
+                    slider.addEventListener('input', () => {
+                        valueDisplay.textContent = slider.value;
+                        updateProgress();
+                    });
+                }
+                // Wire up select if present
+                const select = el.querySelector('select');
+                if (select) {
+                    select.addEventListener('change', updateProgress);
+                }
+            });
+        }
+
+        // Show/hide post-only addons based on timing
+        function updateAddonVisibility() {
+            document.querySelectorAll('.addon-post-only').forEach(el => {
+                el.classList.toggle('hidden', timing !== 'post');
+            });
+        }
+
+        // ========== BUILD ADDONS PAYLOAD ==========
+        function buildAddonsPayload() {
+            const obj = {};
+            activeAddons.forEach(addonKey => {
+                const addon = ADDON_REGISTRY[addonKey];
+                if (!addon) return;
+                const el = document.getElementById(addon.fieldName);
+                if (!el) return;
+                if (addon.timing === 'post' && timing !== 'post') return;
+                if (addon.timing === 'pre' && timing !== 'pre') return;
+                obj[addon.fieldName] = el.value !== undefined ? el.value : null;
+            });
+            return JSON.stringify(obj);
+        }
+
+        // Inject addons on load
+        injectAddons();
+
         // ========== RESET ==========
         function resetForm() {
+            // NOTE: sessionId, participantId, participantStatus, and consent are intentionally NOT cleared.
+            // They must persist across pre→post within the same session.
             formData = {
                 valence: null, arousal: null,
                 bodyTension: 50, bodyTensionEngaged: false,
@@ -1746,13 +2080,13 @@
             // Reset all VAS sliders
             vasSliders.forEach(id => {
                 document.getElementById(id).value = 50;
-                document.getElementById(id + 'Value').textContent = '—';
+                document.getElementById(id + 'Value').textContent = 'â€”';
                 document.getElementById('vasItem_' + id).classList.remove('engaged');
             });
             
             // Reset pain VAS
             painSlider.value = 50;
-            painValueDisplay.textContent = '—';
+            painValueDisplay.textContent = 'â€”';
             painContainer.classList.remove('engaged');
             painPrompt.style.display = '';
             
@@ -1780,10 +2114,16 @@
         }
         
         // ========== SETUP FIELD LISTENERS ==========
-        document.getElementById('userId').addEventListener('input', updateProgress);
+        const nameInput = document.getElementById('participantName');
+        nameInput.addEventListener('input', updateProgress);
+        nameInput.addEventListener('blur', () => {
+            const name = nameInput.value.trim();
+            if (name) lookupParticipant(name);
+        });
         document.getElementById('protocol').addEventListener('input', updateProgress);
         
         updateProgress();
+        updateAddonVisibility();
         
         // ========== TUTORIAL MODAL ==========
         function openTutorial() {
@@ -1833,14 +2173,14 @@
                 <div class="modal-example">
                     <div class="modal-example-title">What the faces show</div>
                     <div class="modal-axis-row">
-                        <span class="axis-arrow">←</span> Left faces feel unpleasant <span class="axis-arrow">→</span> Right faces feel pleasant
+                        <span class="axis-arrow">â†</span> Left faces feel unpleasant <span class="axis-arrow">â†’</span> Right faces feel pleasant
                     </div>
                     <div class="modal-axis-row">
-                        <span class="axis-arrow">↓</span> Bottom faces are low intensity <span class="axis-arrow">↑</span> Top faces are high intensity
+                        <span class="axis-arrow">â†“</span> Bottom faces are low intensity <span class="axis-arrow">â†‘</span> Top faces are high intensity
                     </div>
                 </div>
                 
-                <p>Tap any spot inside the grid that best matches how you feel. The faces around the edges are just guides — tap within the grid area to mark your response.</p>
+                <p>Tap any spot inside the grid that best matches how you feel. The faces around the edges are just guides â€” tap within the grid area to mark your response.</p>
                 
                 <div class="modal-example">
                     <div class="modal-example-title">Examples</div>
