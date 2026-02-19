@@ -1336,6 +1336,18 @@
             font-weight: 500;
         }
 
+        #newParticipantBanner {
+            background: #0f1e2a;
+            border: 1px solid #2a5a7a;
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #7dd3fc;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
         /* ========== PROGRESSIVE DISCLOSURE ANIMATIONS ========== */
         @keyframes revealDown {
             from { opacity: 0; transform: translateY(-10px); }
@@ -1440,6 +1452,9 @@
         
         <!-- Welcome back banner (returning participants) -->
         <div id="welcomeBanner" class="hidden"></div>
+
+        <!-- New participant banner -->
+        <div id="newParticipantBanner" class="hidden">✦ First visit — please complete the steps below</div>
 
         <!-- Consent Gate (new participants) -->
         <div id="consentGate" class="hidden">
@@ -2064,10 +2079,15 @@
             }, 500);
         }
 
-        function showConsentGate() {
-            // Demographics first, then consent text slides in below
-            revealSection(document.getElementById('demographicsRow'), 0);
-            revealSection(document.getElementById('consentGate'), 250);
+        function showConsentGate(timing) {
+            hideContinueBtn();
+            revealSection(document.getElementById('newParticipantBanner'), 0);
+            if (timing === 'pre') {
+                revealSection(document.getElementById('demographicsRow'), 150);
+                revealSection(document.getElementById('consentGate'), 350);
+            } else {
+                revealSection(document.getElementById('consentGate'), 150);
+            }
             // surveyBody stays blocked until consent accepted
         }
 
@@ -3126,6 +3146,7 @@
             banner.textContent = '';
             hideSection(document.getElementById('demographicsRow'));
             hideSection(document.getElementById('consentGate'));
+            hideSection(document.getElementById('newParticipantBanner'));
             hideSection(document.getElementById('protocolTimingSection'));
             // Reset consent checkbox
             const cb = document.getElementById('consentCheck');
