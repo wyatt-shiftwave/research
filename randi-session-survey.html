@@ -212,7 +212,38 @@
             border-left: 1px dashed #444444;
         }
         
-        /* Click marker &mdash; crosshair */
+        /* Axis labels positioned at grid edges */
+        .axis-label {
+            position: absolute;
+            font-size: 0.6rem;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .axis-label-top {
+            top: 42px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .axis-label-bottom {
+            bottom: 42px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .axis-label-left {
+            left: 6px;
+            top: 50%;
+            transform: translateY(-50%) rotate(-90deg);
+        }
+        .axis-label-right {
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%) rotate(90deg);
+        }
+
+
         .marker {
             position: absolute;
             width: 20px;
@@ -900,6 +931,41 @@
             color: #666;
         }
         
+        .modal-example-grid-wrap {
+            position: relative;
+            padding: 20px 28px;
+        }
+        .modal-axis-top, .modal-axis-bottom, .modal-axis-left, .modal-axis-right {
+            position: absolute;
+            font-size: 0.6rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            white-space: nowrap;
+        }
+        .modal-axis-top {
+            top: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .modal-axis-bottom {
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .modal-axis-left {
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%) rotate(-90deg);
+            transform-origin: center center;
+        }
+        .modal-axis-right {
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%) rotate(90deg);
+            transform-origin: center center;
+        }
+
         .modal-example-grid {
             position: relative;
             width: 160px;
@@ -1242,9 +1308,15 @@
         <div class="setup-section" id="setupSection">
             <div class="field-row">
                 <div class="field">
-                    <label>Your Name</label>
-                    <input type="text" id="participantName" placeholder="First Last" autocomplete="off" spellcheck="false">
+                    <label>First Name</label>
+                    <input type="text" id="firstName" placeholder="First" autocomplete="given-name" spellcheck="false">
                 </div>
+                <div class="field">
+                    <label>Last Name</label>
+                    <input type="text" id="lastName" placeholder="Last" autocomplete="family-name" spellcheck="false">
+                </div>
+            </div>
+            <div class="field-row">
                 <div class="field">
                     <label>Protocol</label>
                     <input type="text" id="protocol" placeholder="e.g., Deep Rest" autocomplete="off">
@@ -1526,6 +1598,7 @@
         <!-- EmojiGrid (Affective) &mdash; Toet et al. (2018) validated instrument -->
         <div class="section" id="emojiGridSection">
             <div class="section-title" style="text-align:center;">Tap any spot inside the grid that best matches how you feel right now</div>
+            <button type="button" class="tutorial-trigger" onclick="openTutorial()">How does this work?</button>
             
             <div class="grid-container">
                 <div class="emojigrid-wrapper">
@@ -1568,7 +1641,6 @@
                 </div>
             </div>
             <div class="grid-values" id="gridValues">Tap inside the grid</div>
-            <button type="button" class="tutorial-trigger" onclick="openTutorial()">How does this work?</button>
         </div>
 
         <!-- Optional Comment -->
@@ -1899,9 +1971,11 @@
             const missing = [];
             
             // Setup fields
-            const participantName = document.getElementById('participantName').value.trim();
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
             const protocol = document.getElementById('protocol').value.trim();
-            if (!participantName) missing.push({ type: 'setup', id: 'participantName', label: 'Name' });
+            if (!firstName) missing.push({ type: 'setup', id: 'firstName', label: 'First Name' });
+            if (!lastName) missing.push({ type: 'setup', id: 'lastName', label: 'Last Name' });
             if (!protocol) missing.push({ type: 'setup', id: 'protocol', label: 'Protocol' });
             
             // EmojiGrid
@@ -2037,7 +2111,7 @@
                 return;
             }
             
-            const participantName = document.getElementById('participantName').value.trim();
+            const participantName = getFullName();
             const protocol = document.getElementById('protocol').value.trim();
             const comment = document.getElementById('comment').value.trim();
             
@@ -2867,10 +2941,40 @@
         }
         
         // ========== SETUP FIELD LISTENERS ==========
-        const nameInput = document.getElementById('participantName');
-        nameInput.addEventListener('input', updateProgress);
-        nameInput.addEventListener('blur', () => {
-            const name = nameInput.value.trim();
+        const firstNameInput = document.getElementById('firstName');
+        const lastNameInput = document.getElementById('lastName');
+
+        function getFullName() {
+            const first = firstNameInput.value.trim();
+            const last = lastNameInput.value.trim();
+            return first && last ? first + ' ' + last : '';
+        }
+
+        function resetParticipantState() {
+            // Clear welcome banner and re-shadow if name changes before consent
+            const banner = document.getElementById('welcomeBanner');
+            banner.classList.add('hidden');
+            banner.textContent = '';
+            if (consent !== 'yes' && consent !== 'on_file') {
+                document.getElementById('surveyBody').classList.add('consent-blocked');
+                document.getElementById('consentGate').classList.add('hidden');
+            }
+            participantId = null;
+            participantStatus = null;
+            consent = null;
+        }
+
+        firstNameInput.addEventListener('input', () => { resetParticipantState(); updateProgress(); });
+        lastNameInput.addEventListener('input', () => { resetParticipantState(); updateProgress(); });
+
+        lastNameInput.addEventListener('blur', () => {
+            const name = getFullName();
+            if (name) lookupParticipant(name);
+        });
+
+        // Also trigger lookup if user tabs out of first name directly to protocol (skipping last name)
+        firstNameInput.addEventListener('blur', () => {
+            const name = getFullName();
             if (name) lookupParticipant(name);
         });
         document.getElementById('protocol').addEventListener('input', updateProgress);
@@ -2937,13 +3041,19 @@
                 
                 <div class="modal-example">
                     <div class="modal-example-title">Examples</div>
-                    <div class="modal-example-grid">
-                        <div class="grid-h"></div>
-                        <div class="grid-v"></div>
-                        <div class="example-marker" style="left: 78%; top: 22%;"></div>
-                        <div class="example-marker-label" style="left: 60%; top: 8%;">Happy &amp; energized</div>
-                        <div class="example-marker" style="left: 72%; top: 78%;"></div>
-                        <div class="example-marker-label" style="left: 52%; top: 85%;">Calm &amp; content</div>
+                    <div class="modal-example-grid-wrap">
+                        <span class="modal-axis-top">High Intensity</span>
+                        <span class="modal-axis-bottom">Low Intensity</span>
+                        <span class="modal-axis-left">Unpleasant</span>
+                        <span class="modal-axis-right">Pleasant</span>
+                        <div class="modal-example-grid">
+                            <div class="grid-h"></div>
+                            <div class="grid-v"></div>
+                            <div class="example-marker" style="left: 78%; top: 22%;"></div>
+                            <div class="example-marker-label" style="left: 60%; top: 8%;">Happy &amp; energized</div>
+                            <div class="example-marker" style="left: 72%; top: 78%;"></div>
+                            <div class="example-marker-label" style="left: 52%; top: 85%;">Calm &amp; content</div>
+                        </div>
                     </div>
                 </div>
             </div>
