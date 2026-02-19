@@ -2095,10 +2095,17 @@
             consent = 'yes';
             hideSection(document.getElementById('consentGate'));
             hideSection(document.getElementById('newParticipantBanner'));
+            hideSection(document.getElementById('demographicsRow'));
             revealSection(document.getElementById('protocolTimingSection'), 50);
             setTimeout(function() {
                 document.getElementById('surveyBody').classList.remove('consent-blocked');
             }, 350);
+            // Scroll to top so Protocol field is the first thing they see
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(function() {
+                const p = document.getElementById('protocol');
+                if (p) p.focus();
+            }, 400);
         }
         window.acceptConsent = acceptConsent;
 
@@ -3098,6 +3105,9 @@
             document.getElementById('progressBar').style.width = '0%';
             
             setTiming(timing === 'pre' ? 'post' : 'pre');
+            
+            // Always hide demographics on reset — already captured on first visit
+            hideSection(document.getElementById('demographicsRow'));
             
             // Show the form sections (name + protocol are intentionally preserved)
             document.getElementById('setupSection').classList.remove('hidden');
