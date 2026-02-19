@@ -1295,6 +1295,18 @@
             cursor: not-allowed;
         }
 
+        #ageWarning {
+            background: #2a0f0f;
+            border: 1px solid #7a2a2a;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            color: #f87171;
+            font-size: 0.85rem;
+            text-align: center;
+            line-height: 1.5;
+        }
+
         #nameContinueBtn {
             display: block;
             width: 100%;
@@ -1467,8 +1479,15 @@
             Participation is voluntary and you may stop at any time without consequence.<br><br>
             <strong>Risks:</strong> Participating involves minimal risk. The primary risk is potential breach of confidentiality; reasonable safeguards are in place to reduce this risk. By proceeding, you also acknowledge that you have reviewed the <a href="https://shiftwave.co/pages/shiftwave-contraindications" target="_blank" style="color:#4ade80;">contraindications to Shiftwave use</a> and confirm they do not apply to you.<br><br>
             By checking the box below you confirm you understand and agree to these terms.</p>
+            <div id="ageWarning" class="hidden">
+                ⚠️ This study is open to participants aged 18 and older. Please speak with the study coordinator if you have questions.
+            </div>
             <label>
-                <input type="checkbox" id="consentCheck" onchange="document.getElementById('consentBtn').disabled = !this.checked;">
+                <input type="checkbox" id="ageCheck" onchange="updateConsentBtn()">
+                I confirm I am 18 years of age or older
+            </label>
+            <label>
+                <input type="checkbox" id="consentCheck" onchange="updateConsentBtn()">
                 I agree to participate
             </label>
             <button id="consentBtn" disabled onclick="acceptConsent()">Continue to Survey</button>
@@ -3150,6 +3169,30 @@
             hideSection(document.getElementById('demographicsRow'));
         }
 
+        // ========== CONSENT BUTTON GATING ==========
+        function updateConsentBtn() {
+            const ageCheck    = document.getElementById('ageCheck');
+            const consentCheck = document.getElementById('consentCheck');
+            const btn         = document.getElementById('consentBtn');
+            if (!btn) return;
+            const bothChecked = ageCheck && ageCheck.checked && consentCheck && consentCheck.checked;
+            const ageVal = parseInt(document.getElementById('participantAge').value);
+            const ageUnder18 = !isNaN(ageVal) && ageVal < 18;
+            btn.disabled = !bothChecked || ageUnder18;
+        }
+
+        // Age warning watcher — fires whenever age field changes during onboarding
+        document.getElementById('participantAge').addEventListener('input', function() {
+            const ageVal = parseInt(this.value);
+            const warning = document.getElementById('ageWarning');
+            if (warning) {
+                const under18 = !isNaN(ageVal) && ageVal < 18;
+                warning.classList.toggle('hidden', !under18);
+            }
+            updateConsentBtn();
+            updateProgress();
+        });
+
         function resetParticipantState() {
             // Clear all progressive sections back to initial state
             const banner = document.getElementById('welcomeBanner');
@@ -3159,7 +3202,8 @@
             hideSection(document.getElementById('consentGate'));
             hideSection(document.getElementById('newParticipantBanner'));
             hideSection(document.getElementById('protocolTimingSection'));
-            // Reset consent checkbox
+            // Reset consent checkboxes
+            const ageCheckEl  = document.getElementById('ageCheck');
             const cb = document.getElementById('consentCheck');
             const continueBtn = document.getElementById('nameContinueBtn');
             if (continueBtn) {
@@ -3168,8 +3212,10 @@
                 continueBtn.textContent = 'Continue →';
             }
             const btn = document.getElementById('consentBtn');
+            if (ageCheckEl) ageCheckEl.checked = false;
             if (cb) cb.checked = false;
             if (btn) btn.disabled = true;
+            hideSection(document.getElementById('ageWarning'));
             // Re-block survey
             document.getElementById('surveyBody').classList.add('consent-blocked');
             participantId = null;
@@ -3198,8 +3244,7 @@
         firstNameInput.addEventListener('blur', triggerLookupIfReady);
         lastNameInput.addEventListener('blur', triggerLookupIfReady);
 
-        // Age/sex listeners for progress tracking
-        document.getElementById('participantAge').addEventListener('input', updateProgress);
+        // Sex listener for progress tracking
         document.getElementById('participantSex').addEventListener('change', updateProgress);
 
         // ========== PROTOCOL SEARCHABLE DROPDOWN ==========
