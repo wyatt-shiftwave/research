@@ -1295,6 +1295,28 @@
             cursor: not-allowed;
         }
 
+        #nameContinueBtn {
+            display: block;
+            width: 100%;
+            margin-top: 12px;
+            padding: 12px;
+            background: #fff;
+            border: 1px solid #fff;
+            border-radius: 8px;
+            color: #0a0a0a;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        #nameContinueBtn:disabled {
+            background: #0a0a0a;
+            border-color: #333;
+            color: #555;
+            cursor: not-allowed;
+        }
+
         /* Survey body â€” shadowed until name recognized */
         #surveyBody.consent-blocked {
             pointer-events: none;
@@ -1378,7 +1400,8 @@
                     <input type="text" id="lastName" placeholder="Last" autocomplete="family-name" spellcheck="false">
                 </div>
             </div>
-            <!-- Age + Sex: revealed for new participants only, hidden for returning -->
+            <button type="button" id="nameContinueBtn" disabled onclick="triggerLookupIfReady()">Continue →</button>
+            <!-- Age + Sex: revealed for new participants only, hidden for returning, pre-session only -->
             <div class="field-row hidden" id="demographicsRow">
                 <div class="field">
                     <label>Age</label>
@@ -1854,14 +1877,14 @@
                 } else if (result.status === 'new') {
                     participantId = null;
                     consent = null;
-                    showConsentGate();
+                    showConsentGate(timing);
                 }
             } catch (err) {
                 console.error('Lookup error:', err);
                 // Non-blocking â€” fall through, but still require consent
                 participantStatus = 'new';
                 consent = null;
-                showConsentGate();
+                showConsentGate(timing);
             }
         }
 
@@ -2024,7 +2047,13 @@
         }
 
         // ========== CONSENT GATE LOGIC ==========
+        function hideContinueBtn() {
+            const btn = document.getElementById('nameContinueBtn');
+            if (btn) btn.style.display = 'none';
+        }
+
         function showWelcomeBack() {
+            hideContinueBtn();
             const banner = document.getElementById('welcomeBanner');
             const pts    = document.getElementById('protocolTimingSection');
             banner.textContent = '\u2713 Welcome back \u2014 consent on file';
@@ -3100,6 +3129,12 @@
             hideSection(document.getElementById('protocolTimingSection'));
             // Reset consent checkbox
             const cb = document.getElementById('consentCheck');
+            const continueBtn = document.getElementById('nameContinueBtn');
+            if (continueBtn) {
+                continueBtn.style.display = '';
+                continueBtn.disabled = !getFullName();
+                continueBtn.textContent = 'Continue →';
+            }
             const btn = document.getElementById('consentBtn');
             if (cb) cb.checked = false;
             if (btn) btn.disabled = true;
@@ -3112,13 +3147,21 @@
             participantSex = null;
         }
 
-        firstNameInput.addEventListener('input', () => { resetParticipantState(); updateProgress(); });
-        lastNameInput.addEventListener('input', () => { resetParticipantState(); updateProgress(); });
+        function updateContinueBtn() {
+            const btn = document.getElementById('nameContinueBtn');
+            if (btn) btn.disabled = !getFullName();
+        }
+        firstNameInput.addEventListener('input', () => { resetParticipantState(); updateProgress(); updateContinueBtn(); });
+        lastNameInput.addEventListener('input', () => { resetParticipantState(); updateProgress(); updateContinueBtn(); });
 
-        // Lookup fires on blur of EITHER name field, as long as both are filled and no lookup in progress
+        // Lookup fires via Continue button OR blur of EITHER name field
         function triggerLookupIfReady() {
             const name = getFullName();
-            if (name && !participantStatus) lookupParticipant(name);
+            if (name && !participantStatus) {
+                const btn = document.getElementById('nameContinueBtn');
+                if (btn) { btn.disabled = true; btn.textContent = 'Looking up…'; }
+                lookupParticipant(name);
+            }
         }
         firstNameInput.addEventListener('blur', triggerLookupIfReady);
         lastNameInput.addEventListener('blur', triggerLookupIfReady);
