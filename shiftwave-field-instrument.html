@@ -2094,6 +2094,7 @@
         function acceptConsent() {
             consent = 'yes';
             hideSection(document.getElementById('consentGate'));
+            hideSection(document.getElementById('newParticipantBanner'));
             revealSection(document.getElementById('protocolTimingSection'), 50);
             setTimeout(function() {
                 document.getElementById('surveyBody').classList.remove('consent-blocked');
