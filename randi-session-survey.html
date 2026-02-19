@@ -154,6 +154,7 @@
         }
 
 
+        .timing-btn {
             flex: 1;
             padding: 12px;
             background: #0a0a0a;
@@ -1741,7 +1742,7 @@
             INTERNAL_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwRxN9SYtjDMwAUcEEDs9w2UYT3o-Pq28b-JygOnu7k9yHVY0fyfuzVv5DG0u7vaGdW/exec',
             DEPLOYMENT_PRESETS: {
                 'CAA_Feb2026': {
-                    scriptUrl: 'https://script.google.com/macros/s/AKfycbydoT63ViS2xQsAIclR7oBz50LBvY_cXg-hajP35_v1OpcWbDdtqsrEhlPIUjNKvLDM/exec',
+                    scriptUrl: 'https://script.google.com/macros/s/AKfycby3yKXjAPb2okeBXM89moq2dZ5DBbJtEMU4-MCitB9CHEUSd-RkloIWUnrauO4wsP5R/exec',
                     addons: ['caaPreUsage', 'caaPost']
                 },
                 'Spirit_Mar2026': {
@@ -3080,6 +3081,12 @@
         // Age/sex listeners for progress tracking
         document.getElementById('participantAge').addEventListener('input', updateProgress);
         document.getElementById('participantSex').addEventListener('change', updateProgress);
+
+        // Also trigger lookup if both name fields are filled when user reaches demographics
+        document.getElementById('participantAge').addEventListener('focus', () => {
+            const name = getFullName();
+            if (name && !participantStatus) lookupParticipant(name);
+        });
 
         // ========== PROTOCOL SEARCHABLE DROPDOWN ==========
         const PROTOCOLS = [
