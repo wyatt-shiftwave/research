@@ -1313,6 +1313,23 @@
             font-size: 0.9rem;
             font-weight: 500;
         }
+
+        /* ========== PROGRESSIVE DISCLOSURE ANIMATIONS ========== */
+        @keyframes revealDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .reveal-animate {
+            animation: revealDown 0.35s ease forwards;
+        }
+        /* Consent gate gets its own slightly slower reveal */
+        #consentGate.reveal-animate {
+            animation: revealDown 0.4s ease forwards;
+        }
+        /* Protocol/timing section reveal */
+        #protocolTimingSection.reveal-animate {
+            animation: revealDown 0.35s ease forwards;
+        }
     </style>
 </head>
 <body>
@@ -1361,8 +1378,8 @@
                     <input type="text" id="lastName" placeholder="Last" autocomplete="family-name" spellcheck="false">
                 </div>
             </div>
-            <!-- Age + Sex: shown for new participants only, hidden for returning -->
-            <div class="field-row" id="demographicsRow">
+            <!-- Age + Sex: revealed for new participants only, hidden for returning -->
+            <div class="field-row hidden" id="demographicsRow">
                 <div class="field">
                     <label>Age</label>
                     <input type="number" id="participantAge" placeholder="e.g., 34" min="10" max="100" autocomplete="off">
@@ -1378,6 +1395,7 @@
                     </select>
                 </div>
             </div>
+            <div id="protocolTimingSection" class="hidden">
             <div class="field-row">
                 <div class="field">
                     <label>Protocol</label>
@@ -1394,6 +1412,7 @@
                     <button type="button" class="timing-btn" data-timing="post" onclick="setTiming('post')">Post-Session</button>
                 </div>
             </div>
+            </div><!-- /protocolTimingSection -->
         </div>
         
         <!-- Welcome back banner (returning participants) -->
@@ -1836,12 +1855,6 @@
                     participantId = null;
                     consent = null;
                     showConsentGate();
-                } else {
-                    // Server returned an error (e.g. key sheet misconfigured) — don't freeze
-                    console.error('Lookup error status:', result.status, result.message);
-                    participantStatus = 'new';
-                    consent = null;
-                    showConsentGate();
                 }
             } catch (err) {
                 console.error('Lookup error:', err);
@@ -1995,23 +2008,47 @@
             updatePainValue();
         });
         
+        // ========== PROGRESSIVE DISCLOSURE HELPER ==========
+        function revealSection(el, delayMs) {
+            if (!el) return;
+            setTimeout(function() {
+                el.classList.remove('hidden');
+                void el.offsetWidth; // force reflow so animation fires cleanly
+                el.classList.add('reveal-animate');
+            }, delayMs || 0);
+        }
+        function hideSection(el) {
+            if (!el) return;
+            el.classList.add('hidden');
+            el.classList.remove('reveal-animate');
+        }
+
         // ========== CONSENT GATE LOGIC ==========
         function showWelcomeBack() {
             const banner = document.getElementById('welcomeBanner');
-            banner.textContent = 'âœ“ Welcome back â€” consent on file';
-            banner.classList.remove('hidden');
-            document.getElementById('surveyBody').classList.remove('consent-blocked');
+            const pts    = document.getElementById('protocolTimingSection');
+            banner.textContent = '\u2713 Welcome back \u2014 consent on file';
+            revealSection(banner, 0);
+            revealSection(pts, 250);
+            setTimeout(function() {
+                document.getElementById('surveyBody').classList.remove('consent-blocked');
+            }, 500);
         }
 
         function showConsentGate() {
-            document.getElementById('consentGate').classList.remove('hidden');
-            // surveyBody stays blocked â€” already set at load
+            // Demographics first, then consent text slides in below
+            revealSection(document.getElementById('demographicsRow'), 0);
+            revealSection(document.getElementById('consentGate'), 250);
+            // surveyBody stays blocked until consent accepted
         }
 
         function acceptConsent() {
             consent = 'yes';
-            document.getElementById('consentGate').classList.add('hidden');
-            document.getElementById('surveyBody').classList.remove('consent-blocked');
+            hideSection(document.getElementById('consentGate'));
+            revealSection(document.getElementById('protocolTimingSection'), 50);
+            setTimeout(function() {
+                document.getElementById('surveyBody').classList.remove('consent-blocked');
+            }, 350);
         }
         window.acceptConsent = acceptConsent;
 
@@ -3046,53 +3083,49 @@
         }
 
         function showDemographics() {
-            document.getElementById('demographicsRow').classList.remove('hidden');
+            // Now handled by revealSection — kept as no-op for any legacy calls
         }
 
         function hideDemographics() {
-            document.getElementById('demographicsRow').classList.add('hidden');
+            hideSection(document.getElementById('demographicsRow'));
         }
 
         function resetParticipantState() {
-            // Clear welcome banner and re-shadow if name changes before consent
+            // Clear all progressive sections back to initial state
             const banner = document.getElementById('welcomeBanner');
-            banner.classList.add('hidden');
+            hideSection(banner);
             banner.textContent = '';
-            if (consent !== 'yes' && consent !== 'on_file') {
-                document.getElementById('surveyBody').classList.add('consent-blocked');
-                document.getElementById('consentGate').classList.add('hidden');
-            }
+            hideSection(document.getElementById('demographicsRow'));
+            hideSection(document.getElementById('consentGate'));
+            hideSection(document.getElementById('protocolTimingSection'));
+            // Reset consent checkbox
+            const cb = document.getElementById('consentCheck');
+            const btn = document.getElementById('consentBtn');
+            if (cb) cb.checked = false;
+            if (btn) btn.disabled = true;
+            // Re-block survey
+            document.getElementById('surveyBody').classList.add('consent-blocked');
             participantId = null;
             participantStatus = null;
             consent = null;
             participantAge = null;
             participantSex = null;
-            showDemographics();
         }
 
         firstNameInput.addEventListener('input', () => { resetParticipantState(); updateProgress(); });
         lastNameInput.addEventListener('input', () => { resetParticipantState(); updateProgress(); });
 
-        lastNameInput.addEventListener('blur', () => {
+        // Lookup fires on blur of EITHER name field, as long as both are filled and no lookup in progress
+        function triggerLookupIfReady() {
             const name = getFullName();
-            if (name) lookupParticipant(name);
-        });
-
-        // Also trigger lookup if user tabs out of first name directly to protocol (skipping last name)
-        firstNameInput.addEventListener('blur', () => {
-            const name = getFullName();
-            if (name) lookupParticipant(name);
-        });
+            if (name && !participantStatus) lookupParticipant(name);
+        }
+        firstNameInput.addEventListener('blur', triggerLookupIfReady);
+        lastNameInput.addEventListener('blur', triggerLookupIfReady);
 
         // Age/sex listeners for progress tracking
         document.getElementById('participantAge').addEventListener('input', updateProgress);
         document.getElementById('participantSex').addEventListener('change', updateProgress);
-
-        // Also trigger lookup if both name fields are filled when user reaches demographics
-        document.getElementById('participantAge').addEventListener('focus', () => {
-            const name = getFullName();
-            if (name && !participantStatus) lookupParticipant(name);
-        });
 
         // ========== PROTOCOL SEARCHABLE DROPDOWN ==========
         const PROTOCOLS = [
