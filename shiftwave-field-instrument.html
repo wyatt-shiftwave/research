@@ -1419,6 +1419,7 @@
                 </svg>
             </div>
             <h1>Session Check-In</h1>
+            <p id="deploymentTitle" class="hidden" style="font-size:0.8rem;color:#4ade80;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;"></p>
             <p>~60 seconds &bull; All responses confidential</p>
         </div>
         
@@ -1829,14 +1830,17 @@
             DEPLOYMENT_PRESETS: {
                 'CAA_Feb2026': {
                     scriptUrl: 'https://script.google.com/macros/s/AKfycby3yKXjAPb2okeBXM89moq2dZ5DBbJtEMU4-MCitB9CHEUSd-RkloIWUnrauO4wsP5R/exec',
+                    displayName: 'CAA',
                     addons: ['caaPreUsage', 'caaPost']
                 },
                 'Spirit_Mar2026': {
                     scriptUrl: 'YOUR_SPIRIT_SCRIPT_URL_HERE',
+                    displayName: 'Washington Spirit',
                     addons: ['menstrual', 'soreness']
                 },
                 'McLaren_Mar2026': {
                     scriptUrl: 'https://script.google.com/macros/s/AKfycbwr0D74p1Fn08vdhCwqKPLv5FXHfhlWi4WyKHC7YdINVa_HeyUJlriDmvsXBT2UHnmE/exec',
+                    displayName: 'McLaren Racing',
                     addons: ['mclarenPreSection', 'mclarenSoreness', 'mclarenPerfReadiness', 'mclarenPost']
                 }
             }
@@ -1849,6 +1853,15 @@
         const activePreset = isFieldMode ? (CONFIG.DEPLOYMENT_PRESETS[deploymentId] || {}) : {};
         const SCRIPT_URL = activePreset.scriptUrl || CONFIG.INTERNAL_SCRIPT_URL;
         const activeAddons = isFieldMode ? (activePreset.addons || []) : [];
+
+        // Show org name in header if field mode
+        if (isFieldMode && activePreset.displayName) {
+            const titleEl = document.getElementById('deploymentTitle');
+            if (titleEl) {
+                titleEl.textContent = activePreset.displayName;
+                titleEl.classList.remove('hidden');
+            }
+        }
 
         // ========== SESSION ID ==========
         if (!sessionStorage.getItem('sfi_session_id')) {
@@ -3125,6 +3138,14 @@
                 document.getElementById(id).value = 50;
                 document.getElementById(id + 'Value').innerHTML = '&mdash;';
                 document.getElementById('vasItem_' + id).classList.remove('engaged');
+            });
+
+            // Reset addon VAS sliders (soreness, perf readiness, etc.)
+            document.querySelectorAll('.addon-item input[type="range"]').forEach(slider => {
+                slider.value = 50;
+                const valueDisplay = slider.closest('.addon-item').querySelector('span[id$="Value"]');
+                if (valueDisplay) valueDisplay.innerHTML = '&mdash;';
+                slider.closest('.addon-item').classList.remove('engaged');
             });
             
             // Reset pain VAS
