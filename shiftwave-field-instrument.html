@@ -3171,14 +3171,19 @@
 
         // ========== CONSENT BUTTON GATING ==========
         function updateConsentBtn() {
-            const ageCheck    = document.getElementById('ageCheck');
+            const ageCheck     = document.getElementById('ageCheck');
             const consentCheck = document.getElementById('consentCheck');
-            const btn         = document.getElementById('consentBtn');
+            const btn          = document.getElementById('consentBtn');
             if (!btn) return;
             const bothChecked = ageCheck && ageCheck.checked && consentCheck && consentCheck.checked;
             const ageVal = parseInt(document.getElementById('participantAge').value);
             const ageUnder18 = !isNaN(ageVal) && ageVal < 18;
-            btn.disabled = !bothChecked || ageUnder18;
+            const shouldEnable = bothChecked && !ageUnder18;
+            btn.disabled = !shouldEnable;
+            // Explicitly set styles -- CSS :disabled reverting can be unreliable across browsers
+            btn.style.background = shouldEnable ? '#4ade80' : '';
+            btn.style.color      = shouldEnable ? '#000'    : '';
+            btn.style.cursor     = shouldEnable ? 'pointer' : '';
         }
 
         // Age warning watcher — fires whenever age field changes during onboarding
