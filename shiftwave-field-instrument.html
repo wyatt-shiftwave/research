@@ -173,6 +173,37 @@
             font-weight: 600;
         }
         
+        /* Locked timing state */
+        .timing-btn.locked {
+            pointer-events: none;
+            opacity: 0.45;
+        }
+        .timing-btn.locked.active {
+            opacity: 1;
+            cursor: default;
+        }
+        .timing-lock-note {
+            font-size: 0.7rem;
+            color: #555;
+            margin-top: 6px;
+            letter-spacing: 0.03em;
+        }
+        /* Pre-session escape hatch link */
+        .timing-escape {
+            font-size: 0.72rem;
+            color: #555;
+            margin-top: 7px;
+            display: block;
+        }
+        .timing-escape a {
+            color: #666;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        .timing-escape a:hover {
+            color: #aaa;
+        }
+        
         /* Section styling */
         .section {
             background: #151515;
@@ -1469,6 +1500,8 @@
                     <button type="button" class="timing-btn active" data-timing="pre" onclick="setTiming('pre')">Pre-Session</button>
                     <button type="button" class="timing-btn" data-timing="post" onclick="setTiming('post')">Post-Session</button>
                 </div>
+                <span class="timing-escape" id="timingEscape">Already did pre-session? <a onclick="skipToPost()">Start on post-session</a></span>
+                <span class="timing-lock-note hidden" id="timingLockNote">Timing locked for this session</span>
             </div>
             </div><!-- /protocolTimingSection -->
         </div>
@@ -1911,6 +1944,7 @@
         let participantId = null;
         let participantStatus = null; // 'new' | 'returning'
         let consent = null;           // 'yes' | 'on_file'
+        let timingLocked = false;     // true once participant is identified/consented
         
         // ========== PARTICIPANT LOOKUP ==========
         async function lookupParticipant(name) {
@@ -2111,6 +2145,7 @@
 
         function showWelcomeBack() {
             hideContinueBtn();
+            lockTiming();
             const banner = document.getElementById('welcomeBanner');
             const pts    = document.getElementById('protocolTimingSection');
             banner.textContent = '\u2713 Welcome back \u2014 consent on file';
@@ -2135,6 +2170,7 @@
 
         function acceptConsent() {
             consent = 'yes';
+            lockTiming();
             hideSection(document.getElementById('consentGate'));
             hideSection(document.getElementById('newParticipantBanner'));
             hideSection(document.getElementById('demographicsRow'));
@@ -2166,12 +2202,43 @@
         
         // ========== TIMING TOGGLE ==========
         function setTiming(value) {
+            if (timingLocked) return;  // ignore interactive changes when locked
             timing = value;
             document.querySelectorAll('.timing-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.timing === value);
             });
             updateCommentPlaceholder();
             updateAddonVisibility();
+        }
+        
+        function lockTiming() {
+            timingLocked = true;
+            document.querySelectorAll('.timing-btn').forEach(btn => btn.classList.add('locked'));
+            const escEl = document.getElementById('timingEscape');
+            if (escEl) escEl.classList.add('hidden');
+            const noteEl = document.getElementById('timingLockNote');
+            if (noteEl) noteEl.classList.remove('hidden');
+        }
+        
+        function unlockTiming() {
+            timingLocked = false;
+            document.querySelectorAll('.timing-btn').forEach(btn => btn.classList.remove('locked'));
+            const noteEl = document.getElementById('timingLockNote');
+            if (noteEl) noteEl.classList.add('hidden');
+            // escape hatch stays hidden — only shown before first lookup
+        }
+        
+        // Called by the "already did pre-session" link
+        function skipToPost() {
+            timing = 'post';
+            document.querySelectorAll('.timing-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.timing === 'post');
+            });
+            const escEl = document.getElementById('timingEscape');
+            if (escEl) escEl.classList.add('hidden');
+            updateCommentPlaceholder();
+            updateAddonVisibility();
+            triggerLookupIfReady();
         }
         
         // ========== PROGRESS ==========
@@ -3160,7 +3227,9 @@
             document.getElementById('comment').value = '';
             document.getElementById('progressBar').style.width = '0%';
             
+            unlockTiming();
             setTiming(timing === 'pre' ? 'post' : 'pre');
+            lockTiming();
             
             // Always hide demographics on reset — already captured on first visit
             hideSection(document.getElementById('demographicsRow'));
@@ -3364,13 +3433,27 @@
             options.forEach((o, i) => o.classList.toggle('active', i === protocolHighlightIndex));
         });
 
+        function selectProtocol(value) {
+            protocolInput.value = value;
+            protocolList.classList.add('hidden');
+            protocolInput.blur();  // dismisses iOS keyboard automatically
+            updateProgress();
+        }
+
         protocolList.addEventListener('mousedown', (e) => {
             const opt = e.target.closest('.protocol-option');
             if (opt) {
                 e.preventDefault();
-                protocolInput.value = opt.dataset.value;
-                protocolList.classList.add('hidden');
-                updateProgress();
+                selectProtocol(opt.dataset.value);
+            }
+        });
+
+        // touchend needed for iOS — fires reliably before blur cancels the list
+        protocolList.addEventListener('touchend', (e) => {
+            const opt = e.target.closest('.protocol-option');
+            if (opt) {
+                e.preventDefault();
+                selectProtocol(opt.dataset.value);
             }
         });
 
@@ -3411,6 +3494,7 @@
         }
         // Expose functions used by onclick attributes to global scope
         window.setTiming = setTiming;
+        window.skipToPost = skipToPost;
         window.handleSubmitClick = handleSubmitClick;
         window.resetForm = resetForm;
         window.openTutorial = openTutorial;
