@@ -103,6 +103,14 @@
             outline: none;
             border-color: #555;
         }
+
+        /* Name fields lock after participant lookup */
+        .field input.field-locked {
+            opacity: 0.55;
+            pointer-events: none;
+            border-color: #222;
+            cursor: default;
+        }
         
         .timing-toggle {
             display: flex;
@@ -1524,7 +1532,7 @@
             <strong>Risks:</strong> Participating involves minimal risk. The primary risk is potential breach of confidentiality; reasonable safeguards are in place to reduce this risk. By proceeding, you also acknowledge that you have reviewed the <a href="https://shiftwave.co/pages/shiftwave-contraindications" target="_blank" style="color:#4ade80;">contraindications to Shiftwave use</a> and confirm they do not apply to you.<br><br>
             By checking the box below you confirm you understand and agree to these terms.</p>
             <div id="ageWarning" class="hidden">
-                âš ï¸ This study is open to participants aged 18 and older. Please speak with the study coordinator if you have questions.
+                ⚠️ This study is open to participants aged 18 and older. Please speak with the study coordinator if you have questions.
             </div>
             <label>
                 <input type="checkbox" id="ageCheck" onchange="updateConsentBtn()">
@@ -2145,6 +2153,7 @@
 
         function showWelcomeBack() {
             hideContinueBtn();
+            lockNames();  // Identity confirmed — freeze name fields
             // Do NOT lock timing here — returning users on a fresh load should be
             // able to choose pre or post (e.g., catching up a missed post-session).
             // Timing only locks during the in-session pre→post transition via resetForm().
@@ -2172,6 +2181,7 @@
 
         function acceptConsent() {
             consent = 'yes';
+            lockNames();  // Identity confirmed via consent — freeze name fields
             // Do NOT lock timing here — new users should be free to choose pre or post
             // just like returning users. Lock only happens after pre-session submission.
             hideSection(document.getElementById('consentGate'));
@@ -2214,6 +2224,17 @@
             updateAddonVisibility();
         }
         
+        // ========== NAME LOCK ==========
+        function lockNames() {
+            document.getElementById('firstName').classList.add('field-locked');
+            document.getElementById('lastName').classList.add('field-locked');
+        }
+
+        function unlockNames() {
+            document.getElementById('firstName').classList.remove('field-locked');
+            document.getElementById('lastName').classList.remove('field-locked');
+        }
+
         function lockTiming() {
             timingLocked = true;
             document.querySelectorAll('.timing-btn').forEach(btn => btn.classList.add('locked'));
@@ -3309,6 +3330,7 @@
         });
 
         function resetParticipantState() {
+            unlockNames();  // Name fields editable again for new lookup
             // Clear all progressive sections back to initial state
             const banner = document.getElementById('welcomeBanner');
             hideSection(banner);
