@@ -1834,7 +1834,7 @@
                     addons: ['caaPreUsage', 'caaPost']
                 },
                 'Spirit_Mar2026': {
-                    scriptUrl: 'YOUR_SPIRIT_SCRIPT_URL_HERE',
+                    scriptUrl: 'https://script.google.com/macros/s/AKfycbxHl63W55vPzx-qGsOwEuRgWTMEqXXFhi3lnXq1Hl8Ej4M2oiEEYYhbkWKrJLIHyBGL/exec',
                     displayName: 'Washington Spirit',
                     addons: ['soreness', 'menstrual']
                 },
@@ -2448,12 +2448,12 @@
                 insertAfter: 'addonItem_soreness', timing: 'both',
                 html: `
                 <div class="addon-question-block addon-item" id="addonItem_menstrual">
-                    <div class="addon-question">Rate your current menstrual symptom severity</div>
+                    <div class="likert-question">Rate your current menstrual symptom severity</div>
                     <div class="addon-ss-group" data-field="addonMenstrual" style="flex-direction:row;gap:8px;">
-                        <button class="addon-ss-btn" data-value="none" style="flex:1;text-align:center;">None</button>
-                        <button class="addon-ss-btn" data-value="mild" style="flex:1;text-align:center;">Mild</button>
-                        <button class="addon-ss-btn" data-value="moderate" style="flex:1;text-align:center;">Moderate</button>
-                        <button class="addon-ss-btn" data-value="severe" style="flex:1;text-align:center;">Severe</button>
+                        <button class="addon-ss-btn" data-value="none" style="flex:1;text-align:center;font-size:0.7rem;padding:10px 4px;">None</button>
+                        <button class="addon-ss-btn" data-value="mild" style="flex:1;text-align:center;font-size:0.7rem;padding:10px 4px;">Mild</button>
+                        <button class="addon-ss-btn" data-value="moderate" style="flex:1;text-align:center;font-size:0.7rem;padding:10px 4px;">Moderate</button>
+                        <button class="addon-ss-btn" data-value="severe" style="flex:1;text-align:center;font-size:0.7rem;padding:10px 4px;">Severe</button>
                     </div>
                 </div>`
             },
