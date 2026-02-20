@@ -439,24 +439,33 @@
             border: 2px solid #555;
         }
         
-        /* Engaged state - white */
+        /* Engaged state - white (JS-driven) */
         .vas-item.engaged .vas-slider {
             opacity: 1;
             background: #555;
         }
+
+        /* CSS fallback: brighten whenever slider receives focus/touch */
+        .vas-item:focus-within .vas-slider {
+            opacity: 1;
+            background: #555;
+        }
         
-        .vas-item.engaged .vas-slider::-webkit-slider-thumb {
+        .vas-item.engaged .vas-slider::-webkit-slider-thumb,
+        .vas-item:focus-within .vas-slider::-webkit-slider-thumb {
             background: #fff;
             border-color: #fff;
             box-shadow: 0 0 8px rgba(255,255,255,0.3);
         }
         
-        .vas-item.engaged .vas-slider::-moz-range-thumb {
+        .vas-item.engaged .vas-slider::-moz-range-thumb,
+        .vas-item:focus-within .vas-slider::-moz-range-thumb {
             background: #fff;
             border-color: #fff;
         }
         
-        .vas-item.engaged .vas-labels {
+        .vas-item.engaged .vas-labels,
+        .vas-item:focus-within .vas-labels {
             color: #aaa;
         }
         
@@ -468,7 +477,8 @@
             transition: color 0.3s;
         }
         
-        .vas-item.engaged .vas-value {
+        .vas-item.engaged .vas-value,
+        .vas-item:focus-within .vas-value {
             color: #fff;
         }
         
@@ -1466,7 +1476,7 @@
         <div id="welcomeBanner" class="hidden"></div>
 
         <!-- New participant banner -->
-        <div id="newParticipantBanner" class="hidden">âœ¦ First visit â€” fill in your info above, then review & accept consent below</div>
+        <div id="newParticipantBanner" class="hidden">✦ First visit — fill in your info above, then review & accept consent below</div>
 
         <!-- Consent Gate (new participants) -->
         <div id="consentGate" class="hidden">
@@ -1826,7 +1836,7 @@
                     addons: ['menstrual', 'soreness']
                 },
                 'McLaren_Mar2026': {
-                    scriptUrl: 'https://script.google.com/macros/s/AKfycbwr0D74p1Fn08vdhCwqKPLv5FXHfhlWi4WyKHC7YdINVa_HeyUJlriDmvsXBT2UHnmE/exec',
+                    scriptUrl: 'YOUR_MCLAREN_SCRIPT_URL_HERE',
                     addons: ['mclarenPreSection', 'mclarenSoreness', 'mclarenPerfReadiness', 'mclarenPost']
                 }
             }
@@ -2940,7 +2950,12 @@
                 const slider = el.querySelector('input[type="range"]');
                 const valueDisplay = el.querySelector('span[id$="Value"]');
                 if (slider && valueDisplay) {
+                    // Engage on any pointer interaction with the container or slider
+                    const doEngage = () => el.classList.add('engaged');
+                    el.addEventListener('pointerdown', doEngage);
+                    el.addEventListener('touchstart', doEngage, { passive: true });
                     slider.addEventListener('input', () => {
+                        doEngage();
                         valueDisplay.textContent = slider.value;
                         updateProgress();
                     });
@@ -3125,7 +3140,7 @@
             
             setTiming(timing === 'pre' ? 'post' : 'pre');
             
-            // Always hide demographics on reset â€” already captured on first visit
+            // Always hide demographics on reset — already captured on first visit
             hideSection(document.getElementById('demographicsRow'));
             
             // Show the form sections (name + protocol are intentionally preserved)
@@ -3162,7 +3177,7 @@
         }
 
         function showDemographics() {
-            // Now handled by revealSection â€” kept as no-op for any legacy calls
+            // Now handled by revealSection — kept as no-op for any legacy calls
         }
 
         function hideDemographics() {
@@ -3181,7 +3196,7 @@
             btn.disabled = !bothChecked || ageUnder18;
         }
 
-        // Age warning watcher â€” fires whenever age field changes during onboarding
+        // Age warning watcher — fires whenever age field changes during onboarding
         document.getElementById('participantAge').addEventListener('input', function() {
             const ageVal = parseInt(this.value);
             const warning = document.getElementById('ageWarning');
