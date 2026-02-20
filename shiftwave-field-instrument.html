@@ -2153,7 +2153,7 @@
 
         function showWelcomeBack() {
             hideContinueBtn();
-            lockNames();  // Identity confirmed — freeze name fields
+            // Names stay editable until submission — wrong match can be corrected
             // Do NOT lock timing here — returning users on a fresh load should be
             // able to choose pre or post (e.g., catching up a missed post-session).
             // Timing only locks during the in-session pre→post transition via resetForm().
@@ -2181,7 +2181,7 @@
 
         function acceptConsent() {
             consent = 'yes';
-            lockNames();  // Identity confirmed via consent — freeze name fields
+            // Names stay editable until submission — same principle as timing lock
             // Do NOT lock timing here — new users should be free to choose pre or post
             // just like returning users. Lock only happens after pre-session submission.
             hideSection(document.getElementById('consentGate'));
@@ -2481,6 +2481,9 @@
                 if (result.participantId) {
                     participantId = result.participantId;
                 }
+
+                // Lock names on submission — identity committed, consistent with timing lock logic
+                lockNames();
 
                 // Hide the form, show the success screen
                 document.getElementById('setupSection').classList.add('hidden');
