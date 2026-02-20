@@ -1834,7 +1834,7 @@
                     addons: ['caaPreUsage', 'caaPost']
                 },
                 'Spirit_Mar2026': {
-                    scriptUrl: 'https://script.google.com/macros/s/AKfycbxHl63W55vPzx-qGsOwEuRgWTMEqXXFhi3lnXq1Hl8Ej4M2oiEEYYhbkWKrJLIHyBGL/exec',
+                    scriptUrl: 'YOUR_SPIRIT_SCRIPT_URL_HERE',
                     displayName: 'Washington Spirit',
                     addons: ['menstrual', 'soreness']
                 },
@@ -2433,7 +2433,7 @@
                 </div>`
             },
             soreness: {
-                insertAfter: 'painSection', timing: 'both', fieldName: 'addonSoreness',
+                insertAfter: 'vasItem_bodyConnection', timing: 'both', fieldName: 'addonSoreness',
                 html: `
                 <div class="vas-item addon-item" id="addonItem_soreness">
                     <div class="vas-question">Rate your current muscle soreness.</div>
@@ -2445,14 +2445,15 @@
                 </div>`
             },
             menstrual: {
-                insertAfter: 'painSection', timing: 'both', fieldName: 'addonMenstrual',
+                insertAfter: 'addonItem_soreness', timing: 'both',
                 html: `
-                <div class="vas-item addon-item" id="addonItem_menstrual">
-                    <div class="vas-question">Rate the severity of menstrual cycle related symptoms you&apos;re experiencing right now.</div>
-                    <div class="vas-slider-container">
-                        <div class="vas-labels"><span>None</span><span>Severe</span></div>
-                        <input type="range" class="vas-slider" id="addonMenstrual" min="0" max="100" value="50">
-                        <div class="vas-value"><span id="addonMenstrualValue">&mdash;</span></div>
+                <div class="addon-question-block addon-item" id="addonItem_menstrual">
+                    <div class="addon-question">Rate your current menstrual symptom severity</div>
+                    <div class="addon-ss-group" data-field="addonMenstrual">
+                        <button class="addon-ss-btn" data-value="none">None</button>
+                        <button class="addon-ss-btn" data-value="mild">Mild</button>
+                        <button class="addon-ss-btn" data-value="moderate">Moderate</button>
+                        <button class="addon-ss-btn" data-value="severe">Severe</button>
                     </div>
                 </div>`
             },
