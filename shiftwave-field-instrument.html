@@ -2145,7 +2145,9 @@
 
         function showWelcomeBack() {
             hideContinueBtn();
-            lockTiming();
+            // Do NOT lock timing here — returning users on a fresh load should be
+            // able to choose pre or post (e.g., catching up a missed post-session).
+            // Timing only locks during the in-session pre→post transition via resetForm().
             const banner = document.getElementById('welcomeBanner');
             const pts    = document.getElementById('protocolTimingSection');
             banner.textContent = '\u2713 Welcome back \u2014 consent on file';
@@ -2170,7 +2172,8 @@
 
         function acceptConsent() {
             consent = 'yes';
-            lockTiming();
+            // Do NOT lock timing here — new users should be free to choose pre or post
+            // just like returning users. Lock only happens after pre-session submission.
             hideSection(document.getElementById('consentGate'));
             hideSection(document.getElementById('newParticipantBanner'));
             hideSection(document.getElementById('demographicsRow'));
@@ -2463,6 +2466,9 @@
                 document.getElementById('consentGate').classList.add('hidden');
                 document.getElementById('surveyBody').classList.add('hidden');
                 document.querySelector('.submit-section').classList.add('hidden');
+                const banner = document.getElementById('welcomeBanner');
+                hideSection(banner);
+                banner.textContent = '';
                 document.getElementById('surveyContainer').classList.remove('hidden'); // ensure outer stays visible
                 document.getElementById('successContainer').classList.remove('hidden');
 
@@ -3170,7 +3176,10 @@
             // NOTE: sessionId, participantId, participantStatus, and consent are intentionally NOT cleared.
             // They must persist across preÃ¢â€ â€™post within the same session.
             
-            // Keep welcome banner visible and survey unlocked if already consented
+            // Clear welcome banner — it belongs to the lookup step, not the active survey
+            const bannerEl = document.getElementById('welcomeBanner');
+            hideSection(bannerEl);
+            bannerEl.textContent = '';
 
             // Clear addon selections
             addonValues = {};
